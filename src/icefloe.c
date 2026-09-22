@@ -37,10 +37,6 @@ static void BgIcefloe_CompactSpawnList(void);
 static BgIcefloe* BgIcefloe_GetOldestNonMeltingInstance(void);
 static void BgIcefloe_EnforceMaxInstances(PlayState* play);
 
-// Function declarations for new functions related to ice floe global actor management.
-static s32 BgIcefloe_GetObjectSlot(PlayState* play);
-Actor* BgIcefloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX, s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent);
-
 // Tracks all active ice floes so the runtime limit can change dynamically.
 static BgIcefloe* sSpawnedInstances[ICEFLOE_MAX_TRACKED_INSTANCES] = { NULL };
 static s32 sSpawnedCount = 0;
@@ -219,7 +215,7 @@ RECOMP_PATCH void BgIcefloe_Destroy(Actor* thisx, PlayState* play) {
     }
 }
 
-// Retrieves the object slot for the Icefloe object, creating a synthetic slot if necessary.
+// Unused, but keeping here for reference for now.
 static s32 BgIcefloe_GetObjectSlot(PlayState* play) {
     ObjectContext* objectCtx = &play->objectCtx;
     void* object;
@@ -253,91 +249,9 @@ static s32 BgIcefloe_GetObjectSlot(PlayState* play) {
     return slot;
 }
 
-Actor* BgIcefloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX,
-                                     s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent) {
-    Actor* actor;
-    ActorProfile* profile;
-    s32 objectSlot;
-    ActorOverlay* overlayEntry;
-
-    if (actorCtx->totalLoadedActors >= 255) {
-        return NULL;
-    }
-
-    profile = Actor_LoadOverlay(actorCtx, index);
-    if (profile == NULL) {
-        return NULL;
-    }
-
-    objectSlot = BgIcefloe_GetObjectSlot(play);
-    if (objectSlot <= OBJECT_SLOT_NONE) {
-        // No need to check for ((profile->type == ACTORCAT_ENEMY) && Flags_GetClear(play, play->roomCtx.curRoom.num) && (profile->id != ACTOR_BOSS_05))
-        Actor_FreeOverlay(&gActorOverlayTable[index]);
-        return NULL;
-    }
-
-    actor = ZeldaArena_Malloc(profile->instanceSize);
-    if (actor == NULL) {
-        Actor_FreeOverlay(&gActorOverlayTable[index]);
-        return NULL;
-    }
-
-    overlayEntry = &gActorOverlayTable[index];
-    if (overlayEntry->vramStart != NULL) {
-        overlayEntry->numLoaded++;
-    }
-
-    bzero(actor, profile->instanceSize);
-    actor->overlayEntry = overlayEntry;
-    actor->id = profile->id;
-    actor->flags = profile->flags;
-
-    // No need to check for profile->id == ACTOR_EN_PART
-
-    actor->objectSlot = objectSlot;
-
-    actor->init = profile->init;
-    actor->destroy = profile->destroy;
-    actor->update = profile->update;
-    actor->draw = profile->draw;
-
-    if (parent != NULL) {
-        actor->room = parent->room;
-        actor->parent = parent;
-        parent->child = actor;
-    } else {
-        actor->room = play->roomCtx.curRoom.num;
-    }
-
-    actor->home.pos.x = x;
-    actor->home.pos.y = y;
-    actor->home.pos.z = z;
-    actor->home.rot.x = rotX;
-    actor->home.rot.y = rotY;
-    actor->home.rot.z = rotZ;
-    actor->params = params & 0xFFFF;
-    actor->csId = csId & 0x7F;
-
-    if (actor->csId == 0x7F) {
-        actor->csId = CS_ID_NONE;
-    }
-
-    if (halfDaysBits != 0) {
-        actor->halfDaysBits = halfDaysBits;
-    } else {
-        actor->halfDaysBits = HALFDAYBIT_ALL;
-    }
-
-    Actor_AddToCategory(actorCtx, actor, profile->type);
-
-    {
-        uintptr_t prevSeg = gSegments[0x06];
-
-        Actor_Init(actor, play);
-        gSegments[0x06] = prevSeg;
-    }
-
-    return actor;
+RECOMP_HOOK_RETURN("Actor_LoadOverlay") void on_return_Actor_LoadOverlay() {
+    ActorProfile *profile = recomphook_get_return_ptr();
+    recomp_printf("Actor_LoadOverlay: profile=%p, id=%d, objectId=%d\n", profile, profile ? profile->id : -1, profile ? profile->objectId : -1);
 }
 
 RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
@@ -371,16 +285,7 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
 
         if ((this->actor.params == ARROW_TYPE_ICE) || (this->actor.params == ARROW_TYPE_FIRE)) {
             if ((this->actor.params == ARROW_TYPE_ICE) && (func_8088B6B0 != this->actionFunc)) {
-                if (recomp_get_config_u32("allow_anywhere") == 0)
-                {
-                    // Allow Icefloe to spawn in any scene.
-                    BgIcefloe_Actor_SpawnAsChildAndCutscene(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300, CS_ID_NONE, HALFDAYBIT_ALL, NULL);
-                } else 
-                {
-                    // Icefloe will only spawn in vanilla-allowed scenes.
-                    Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300);
-                }
-
+                Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300);
                 Actor_Kill(&this->actor);
                 return;
             }
