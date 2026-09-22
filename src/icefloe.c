@@ -267,6 +267,11 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
     Vec3f sp44;
     f32 temp_f0;
 
+    // Variables needed for synthetic slot management.
+    ObjectContext* objectCtx = &play->objectCtx;
+    void* object;
+    s32 slot;
+
     if (WaterBox_GetSurface1(play, &play->colCtx, this->actor.world.pos.x, this->actor.world.pos.z, &sp50, &waterBox) &&
         (this->actor.world.pos.y < sp50) && !(this->actor.bgCheckFlags & BGCHECKFLAG_WATER)) {
         this->actor.bgCheckFlags |= BGCHECKFLAG_WATER;
@@ -292,6 +297,9 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
 
         if ((this->actor.params == ARROW_TYPE_ICE) || (this->actor.params == ARROW_TYPE_FIRE)) {
             if ((this->actor.params == ARROW_TYPE_ICE) && (func_8088B6B0 != this->actionFunc)) {
+                
+                // TODO: put code from BgIcefloe_GetObjectSlot here
+
                 Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300);
                 Actor_Kill(&this->actor);
                 return;
