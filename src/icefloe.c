@@ -118,6 +118,7 @@ static void BgIcefloe_EnforceMaxInstances(PlayState* play) {
     }
 }
 
+// Loads the collision mesh for the Icefloe dyna poly actor.
 void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play) {
     BgIcefloe* this = (BgIcefloe*)thisx;
     void* obj;
@@ -231,31 +232,37 @@ RECOMP_PATCH void BgIcefloe_Destroy(Actor* thisx, PlayState* play) {
     }
 }
 
+// Retrieves the object slot for the Icefloe object, creating a synthetic slot if necessary.
 static s32 BgIcefloe_GetObjectSlot(PlayState* play) {
     ObjectContext* objectCtx = &play->objectCtx;
     void* object;
     s32 slot;
 
+    // Get the globally loaded Icefloe object.
     object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
     if (object == NULL) {
         return OBJECT_SLOT_NONE;
     }
 
+    // Check for an existing slot.
     for (slot = objectCtx->numEntries; slot < ARRAY_COUNT(objectCtx->slots); slot++) {
         if (objectCtx->slots[slot].id == OBJECT_ICEFLOE) {
             return slot;
         }
     }
 
+    // No room for a synthetic slot, return OBJECT_SLOT_NONE.
     if (objectCtx->numEntries >= ARRAY_COUNT(objectCtx->slots)) {
         return OBJECT_SLOT_NONE;
     }
 
+    // Add the global object as a synthetic slot.
     slot = objectCtx->numEntries;
 
     objectCtx->slots[slot].id = OBJECT_ICEFLOE;
     objectCtx->slots[slot].segment = object;
 
+    // Don't increment numEntries as this isn't a scene-loaded object.
     return slot;
 }
 
