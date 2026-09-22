@@ -218,6 +218,30 @@ RECOMP_PATCH void BgIcefloe_Destroy(Actor* thisx, PlayState* play) {
     }
 }
 
+RECOMP_HOOK("func_8088AA98") void BgIcefloe_SynthesizeGlobalObjectSlot(EnArrow* this, PlayState* play) {
+    void* object;
+    s32 slot;
+
+    if (Object_GetSlot(&play->objectCtx, OBJECT_ICEFLOE) <= OBJECT_SLOT_NONE)
+    {
+        object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
+        if (object == NULL) {
+            recomp_printf("IcePlatformUtilities: Failed to get global object for OBJECT_ICEFLOE\n");
+            return;
+        }
+        slot = play->objectCtx.numEntries;
+        recomp_printf("IcePlatformUtilities: Adding synthetic slot for OBJECT_ICEFLOE in slot=%d\n", slot);
+
+        play->objectCtx.slots[slot].id = OBJECT_ICEFLOE;
+        play->objectCtx.slots[slot].segment = object;
+        play->objectCtx.numEntries++;
+    }
+    else 
+    {
+        recomp_printf("IcePlatformUtilities: OBJECT_ICEFLOE already has a slot\n");
+    }
+}
+
 RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
     WaterBox* waterBox;
     f32 sp50 = this->actor.world.pos.y;
