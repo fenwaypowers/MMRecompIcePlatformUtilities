@@ -5,13 +5,13 @@
 
 # Unique ID of this mod. Pick something long enough that it'll never be the same as any other mod.
 # The name displayed in the mod management menu is separate from this so this doesn't need to be human readable.
-id = "mm_recomp_ice_arrow_utilities"
+id = "mm_recomp_ice_platform_utilities"
 
 # Version of this mod.
 version = "1.0.0"
 
 # The name that will show up for this mod in the mod menu. This should be human readable.
-display_name = "Ice Arrow Utilities"
+display_name = "Ice Platform Utilities"
 
 # The description that will show up when this mod is displayed in the mod menu. This should be human readable.
 description = """
@@ -26,7 +26,7 @@ Features:
 - Set how long ice platforms last before melting
   (default = 15 seconds, which is the vanilla value)
 
-- Enable infinite ice platform lifetime
+- Option to enable infinite ice platform lifetime
   (ice platforms only melt when forced to make room for a new one)"""
 
 # A short description that will show up in this mod's entry in the mod list. This should be human readable and kept short
@@ -67,7 +67,7 @@ native_libraries = [
 elf_path = "build/mod.elf"
 
 # Output mod filename.
-mod_filename = "mm_recomp_ice_arrow_utilities"
+mod_filename = "mm_recomp_ice_platform_utilities"
 
 # Reference symbol files.
 func_reference_syms_file = "Zelda64RecompSyms/mm.us.rev1.syms.toml"
@@ -87,7 +87,7 @@ default = "Yes"
 [[manifest.config_options]]
 id = "max_instances"
 name = "Number of Concurrent Ice Platforms Allowed"
-description = "Set how many ice platforms can exist concurrently. The vanilla value is 3. Setting this to 0 will prevent ice arrow platforms from spawning ever."
+description = "Set how many ice platforms can exist concurrently. The vanilla value is 3. Setting this to 0 will prevent ice platforms from spawning ever."
 type = "Number"
 min = 0
 max = 10
