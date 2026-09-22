@@ -38,7 +38,6 @@ static BgIcefloe* BgIcefloe_GetOldestNonMeltingInstance(void);
 static void BgIcefloe_EnforceMaxInstances(PlayState* play);
 
 // Function declarations for new functions related to ice floe global actor management.
-void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play);
 static s32 BgIcefloe_GetObjectSlot(PlayState* play);
 Actor* BgIcefloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX, s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent);
 
@@ -117,11 +116,13 @@ static void BgIcefloe_EnforceMaxInstances(PlayState* play) {
     }
 }
 
-// Loads the collision mesh for the Icefloe dyna poly actor.
-void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play) {
+RECOMP_PATCH void BgIcefloe_Init(Actor* thisx, PlayState* play) {
     BgIcefloe* this = (BgIcefloe*)thisx;
     void* obj;
     CollisionHeader* col;
+
+    Actor_ProcessInitChain(&this->dyna.actor, sInitChain);
+    DynaPolyActor_Init(&this->dyna, 0);
 
     // Get the globally loaded Icefloe object.
     obj = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
@@ -135,21 +136,7 @@ void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play) {
     col->surfaceTypeList = SEGMENTED_TO_GLOBAL_PTR(obj, col->surfaceTypeList);
     col->bgCamList = SEGMENTED_TO_GLOBAL_PTR(obj, col->bgCamList);
 
-    // Register the collision mesh.
-    this->dyna.bgId = DynaPoly_SetBgActor(
-        play,
-        &play->colCtx.dyna,
-        &this->dyna.actor,
-        col
-    );
-}
-
-RECOMP_PATCH void BgIcefloe_Init(Actor* thisx, PlayState* play) {
-    BgIcefloe* this = (BgIcefloe*)thisx;
-
-    Actor_ProcessInitChain(&this->dyna.actor, sInitChain);
-    DynaPolyActor_Init(&this->dyna, 0);
-    BgIcefloe_DynaPolyActor_LoadMesh(&this->dyna.actor, play);
+    DynaPolyActor_LoadMesh(play, &this->dyna, col);
 
     BgIcefloe_CompactSpawnList();
 
