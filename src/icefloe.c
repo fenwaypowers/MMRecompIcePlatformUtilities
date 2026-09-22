@@ -123,18 +123,19 @@ void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play) {
     void* obj;
     CollisionHeader* col;
 
+    // Get the globally loaded Icefloe object.
     obj = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
 
-    col = SEGMENTED_TO_GLOBAL_PTR(
-        obj,
-        (CollisionHeader*)0x06000C90
-    );
+    // Get the collision header from the global object.
+    col = SEGMENTED_TO_GLOBAL_PTR(obj, (CollisionHeader*)0x06000C90);
 
+    // Resolve the collision header's segmented pointers.
     col->vtxList = SEGMENTED_TO_GLOBAL_PTR(obj, col->vtxList);
     col->polyList = SEGMENTED_TO_GLOBAL_PTR(obj, col->polyList);
     col->surfaceTypeList = SEGMENTED_TO_GLOBAL_PTR(obj, col->surfaceTypeList);
     col->bgCamList = SEGMENTED_TO_GLOBAL_PTR(obj, col->bgCamList);
 
+    // Register the collision mesh.
     this->dyna.bgId = DynaPoly_SetBgActor(
         play,
         &play->colCtx.dyna,
@@ -387,7 +388,7 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
                     BgIceFloe_Actor_SpawnAsChildAndCutscene(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300, CS_ID_NONE, HALFDAYBIT_ALL, NULL);
                 } else 
                 {
-                    // Icefloe will only spawn in vanilla-allowed scenes
+                    // Icefloe will only spawn in vanilla-allowed scenes.
                     Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300);
                 }
 
