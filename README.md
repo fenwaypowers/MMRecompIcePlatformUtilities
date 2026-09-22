@@ -12,7 +12,7 @@ Features:
 - This mod depends on [Global Objects by YAZMT](https://thunderstore.io/c/zelda-64-recompiled/p/YAZMT/Global_Objects/v/0.1.1/). You must first install this before being able to use Ice Platform Utilities.
 
 ### Why only up to five concurrent platforms? Why not more?
-- Certain areas of the game crash at over 5 concurrent platforms.
+- Certain areas of the game crash at six or more concurrent platforms.
 
 ### Wasn't there another mod that did the same thing?
 - I made two ice platform mods, [IcePlatformsAnywhere](https://github.com/fenwaypowers/MMRecompIcePlatformsAnywhere) and [MoreIcePlatforms](https://github.com/fenwaypowers/MMRecompMoreIcePlatforms). This mod combines those two previous mods into one mod.
