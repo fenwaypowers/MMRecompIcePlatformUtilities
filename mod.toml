@@ -15,7 +15,7 @@ display_name = "Ice Arrow Utilities"
 
 # The description that will show up when this mod is displayed in the mod menu. This should be human readable.
 description = """
-Allows up to ten ice platforms to exist at once and lets you adjust their lifetime.
+Allows up to ten ice platforms to exist concurrently and lets you adjust their lifetime.
 
 Features:
 - Change how many ice platforms can exist concurrently
@@ -29,7 +29,7 @@ Features:
 
 # A short description that will show up in this mod's entry in the mod list. This should be human readable and kept short
 # to prevent it from being cut off due to the limited space.
-short_description = "Allows up to ten ice platforms to exist at once and lets you adjust their lifetime."
+short_description = "Allows up to ten ice platforms to exist concurrently and lets you adjust their lifetime."
 
 # Authors of this mod.
 authors = [ "Fenway Powers" ]
@@ -110,5 +110,6 @@ default = 15
 id = "allow_anywhere"
 name = "Allow Ice Platforms Anywhere"
 description = "Determines if ice platforms can be created on any body of water. If set to Yes, all bodies of water in the game will allow ice platform creation. If set to No, then ice platforms will only be spawnable where they would be in the vanilla game."
+type = "Enum"
 options = [ "Yes", "No" ]
 default = "Yes"
