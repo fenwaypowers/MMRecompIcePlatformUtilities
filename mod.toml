@@ -75,6 +75,13 @@ data_reference_syms_files = [ "Zelda64RecompSyms/mm.us.rev1.datasyms.toml", "Zel
 additional_files = ["thumb.png"]
 
 [[manifest.config_options]]
+id = "allow_anywhere"
+name = "Allow Ice Platforms Anywhere"
+description = "Determines if ice platforms can be created on any body of water. If set to Yes, all bodies of water in the game will allow ice platform creation. If set to No, then ice platforms will only be spawnable where they would be in the vanilla game."
+options = [ "Yes", "No" ]
+default = "Yes"
+
+[[manifest.config_options]]
 id = "max_instances"
 name = "Number of Concurrent Ice Platforms Allowed"
 description = "Set how many ice platforms can exist concurrently. The vanilla value is 3. Setting this to 0 will prevent ice arrow platforms from spawning ever."

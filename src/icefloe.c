@@ -250,18 +250,13 @@ static s32 BgIcefloe_GetObjectSlot(PlayState* play) {
     object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
     if (object == NULL) {
         return OBJECT_SLOT_NONE;
-    } else {
-        recomp_printf("Global object for OBJECT_ICEFLOE is already loaded\n");
     }
 
     for (slot = objectCtx->numEntries; slot < ARRAY_COUNT(objectCtx->slots); slot++) {
         if (objectCtx->slots[slot].id == OBJECT_ICEFLOE) {
-            recomp_printf("Found existing object slot for OBJECT_ICEFLOE: %d\n", slot);
             return slot;
         }
     }
-
-    recomp_printf("No existing object slot found for OBJECT_ICEFLOE\n");
 
     if (objectCtx->numEntries >= ARRAY_COUNT(objectCtx->slots)) {
         return OBJECT_SLOT_NONE;
@@ -271,8 +266,6 @@ static s32 BgIcefloe_GetObjectSlot(PlayState* play) {
 
     objectCtx->slots[slot].id = OBJECT_ICEFLOE;
     objectCtx->slots[slot].segment = object;
-
-    recomp_printf("Assigned new object slot for OBJECT_ICEFLOE: %d\n", slot);
 
     return slot;
 }
@@ -400,7 +393,14 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
 
         if ((this->actor.params == ARROW_TYPE_ICE) || (this->actor.params == ARROW_TYPE_FIRE)) {
             if ((this->actor.params == ARROW_TYPE_ICE) && (func_8088B6B0 != this->actionFunc)) {
-                BgIceFloe_Actor_SpawnAsChildAndCutscene(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300, CS_ID_NONE, HALFDAYBIT_ALL, NULL);
+                if (recomp_get_config_u32("allow_anywhere") == 0) // If "allow_anywhere" is enabled
+                {
+                    BgIceFloe_Actor_SpawnAsChildAndCutscene(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300, CS_ID_NONE, HALFDAYBIT_ALL, NULL);
+                } else // Only spawn in vanilla allowed scenes
+                {
+                    Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300);
+                }
+
                 Actor_Kill(&this->actor);
                 return;
             }
