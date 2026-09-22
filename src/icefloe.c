@@ -251,7 +251,14 @@ static s32 BgIcefloe_GetObjectSlot(PlayState* play) {
 
 RECOMP_HOOK_RETURN("Actor_LoadOverlay") void on_return_Actor_LoadOverlay() {
     ActorProfile *profile = recomphook_get_return_ptr();
-    recomp_printf("Actor_LoadOverlay: profile=%p, id=%d, objectId=%d\n", profile, profile ? profile->id : -1, profile ? profile->objectId : -1);
+    
+    if (profile == NULL) {
+        return;
+    }
+
+    if (profile->id == ACTOR_BG_ICEFLOE) {
+        recomp_printf("Actor_LoadOverlay: profile=%p, id=%d, objectId=%d\n", profile, profile->id, profile->objectId);
+    }
 }
 
 RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
