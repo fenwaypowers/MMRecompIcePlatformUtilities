@@ -41,7 +41,7 @@ static void BgIcefloe_EnforceMaxInstances(PlayState* play);
 // Function declarations for new functions related to ice floe global actor management.
 void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play);
 static s32 BgIcefloe_GetObjectSlot(PlayState* play);
-Actor* BgIceFloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX, s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent);
+Actor* BgIcefloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX, s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent);
 
 // Tracks all active ice floes so the runtime limit can change dynamically.
 static BgIcefloe* sSpawnedInstances[ICEFLOE_MAX_TRACKED_INSTANCES] = { NULL };
@@ -267,7 +267,7 @@ static s32 BgIcefloe_GetObjectSlot(PlayState* play) {
     return slot;
 }
 
-Actor* BgIceFloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX,
+Actor* BgIcefloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX,
                                      s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent) {
     Actor* actor;
     ActorProfile* profile;
@@ -388,7 +388,7 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
                 if (recomp_get_config_u32("allow_anywhere") == 0)
                 {
                     // Allow Icefloe to spawn in any scene.
-                    BgIceFloe_Actor_SpawnAsChildAndCutscene(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300, CS_ID_NONE, HALFDAYBIT_ALL, NULL);
+                    BgIcefloe_Actor_SpawnAsChildAndCutscene(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300, CS_ID_NONE, HALFDAYBIT_ALL, NULL);
                 } else 
                 {
                     // Icefloe will only spawn in vanilla-allowed scenes.
