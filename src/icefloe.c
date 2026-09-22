@@ -9,28 +9,18 @@
 
 #define ICEFLOE_MAX_TRACKED_INSTANCES 32
 
-// Function declarations for z_bg_icefloe.c
+// Function declarations for functions from z_bg_icefloe.c
 void BgIcefloe_Init(Actor* thisx, PlayState* play);
 void BgIcefloe_Destroy(Actor* thisx, PlayState* play);
 void BgIcefloe_Update(Actor* thisx, PlayState* play);
-void BgIcefloe_Draw(Actor* thisx, PlayState* play);
 
 void func_80AC4A80(BgIcefloe* this, PlayState* play);
-void BgIcefloe_Grow(BgIcefloe* this, PlayState* play);
 void func_80AC4C18(BgIcefloe* this);
 void func_80AC4D2C(BgIcefloe* this, PlayState* play);
 void func_80AC4C34(BgIcefloe* this, PlayState* play);
 void func_80AC4CF0(BgIcefloe* this);
 
-// Function declarations for z_en_arrow.c
-void EnArrow_Init(Actor* thisx, PlayState* play);
-void EnArrow_Destroy(Actor* thisx, PlayState* play);
-void EnArrow_Update(Actor* thisx, PlayState* play);
-void EnArrow_Draw(Actor* thisx, PlayState* play);
-
-void func_8088A594(EnArrow* this, PlayState* play);
-void func_8088ACE0(EnArrow* this, PlayState* play);
-void func_8088B630(EnArrow* this, PlayState* play);
+// Function declaration for function from z_en_arrow.c
 void func_8088B6B0(EnArrow* this, PlayState* play);
 
 // Function declaration for function from z_malloc.c
@@ -38,7 +28,6 @@ void* ZeldaArena_Malloc(size_t size);
 
 // Function declarations for functions from z_actor.c
 void Actor_AddToCategory(ActorContext* actorCtx, Actor* actor, u8 actorCategory);
-void Actor_ChangeCategory(PlayState* play, ActorContext* actorCtx, Actor* actor, u8 actorCategory);
 void Actor_Init(Actor* actor, PlayState* play);
 ActorProfile* Actor_LoadOverlay(ActorContext* actorCtx, s16 index);
 void Actor_FreeOverlay(ActorOverlay* entry);
@@ -53,7 +42,6 @@ static void BgIcefloe_EnforceMaxInstances(PlayState* play);
 void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play);
 static s32 BgIcefloe_GetObjectSlot(PlayState* play);
 Actor* BgIceFloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX, s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent);
-
 
 // Tracks all active ice floes so the runtime limit can change dynamically.
 static BgIcefloe* sSpawnedInstances[ICEFLOE_MAX_TRACKED_INSTANCES] = { NULL };
@@ -393,11 +381,13 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
 
         if ((this->actor.params == ARROW_TYPE_ICE) || (this->actor.params == ARROW_TYPE_FIRE)) {
             if ((this->actor.params == ARROW_TYPE_ICE) && (func_8088B6B0 != this->actionFunc)) {
-                if (recomp_get_config_u32("allow_anywhere") == 0) // If "allow_anywhere" is enabled
+                if (recomp_get_config_u32("allow_anywhere") == 0)
                 {
+                    // Allow Icefloe to spawn in any scene.
                     BgIceFloe_Actor_SpawnAsChildAndCutscene(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300, CS_ID_NONE, HALFDAYBIT_ALL, NULL);
-                } else // Only spawn in vanilla allowed scenes
+                } else 
                 {
+                    // Icefloe will only spawn in vanilla-allowed scenes
                     Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300);
                 }
 
