@@ -31,6 +31,9 @@ void Actor_Init(Actor* actor, PlayState* play);
 ActorProfile* Actor_LoadOverlay(ActorContext* actorCtx, s16 index);
 void Actor_FreeOverlay(ActorOverlay* entry);
 
+// z_scene.c
+s32 Object_GetSlot(ObjectContext* objectCtx, s16 objectId);
+
 // Function declarations for new functions related to ice floe instance management.
 static s32 BgIcefloe_CountActiveInstances(void);
 static void BgIcefloe_CompactSpawnList(void);
@@ -258,6 +261,8 @@ RECOMP_HOOK_RETURN("Actor_LoadOverlay") void on_return_Actor_LoadOverlay() {
 
     if (profile->id == ACTOR_BG_ICEFLOE) {
         recomp_printf("Actor_LoadOverlay: profile=%p, id=%d, objectId=%d\n", profile, profile->id, profile->objectId);
+        recomp_printf("value of OBJECT_ICEFLOE: %d\n", OBJECT_ICEFLOE);
+        recomp_printf("value of ACTOR_BG_ICEFLOE: %d\n", ACTOR_BG_ICEFLOE);
     }
 }
 
@@ -268,7 +273,6 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
     f32 temp_f0;
 
     // Variables needed for synthetic slot management.
-    ObjectContext* objectCtx = &play->objectCtx;
     void* object;
     s32 slot;
 
@@ -298,7 +302,20 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
         if ((this->actor.params == ARROW_TYPE_ICE) || (this->actor.params == ARROW_TYPE_FIRE)) {
             if ((this->actor.params == ARROW_TYPE_ICE) && (func_8088B6B0 != this->actionFunc)) {
                 
-                // TODO: put code from BgIcefloe_GetObjectSlot here
+                if (Object_GetSlot(&play->objectCtx, OBJECT_ICEFLOE) <= OBJECT_SLOT_NONE)
+                {
+                    object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
+                    slot = play->objectCtx.numEntries;
+                    recomp_printf("Adding synthetic slot for OBJECT_ICEFLOE: slot=%d\n", slot);
+
+                    play->objectCtx.slots[slot].id = OBJECT_ICEFLOE;
+                    play->objectCtx.slots[slot].segment = object;
+                    play->objectCtx.numEntries++;
+                } 
+                else 
+                {
+                    recomp_printf("OBJECT_ICEFLOE already has a slot\n");
+                }
 
                 Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300);
                 Actor_Kill(&this->actor);
