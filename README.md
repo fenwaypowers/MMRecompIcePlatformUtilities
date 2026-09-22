@@ -13,8 +13,8 @@ Features:
 
 ### Wasn't there another mod that did the same thing?
 - I made two ice platform mods, [IcePlatformsAnywhere](https://github.com/fenwaypowers/MMRecompIcePlatformsAnywhere) and [MoreIcePlatforms](https://github.com/fenwaypowers/MMRecompMoreIcePlatforms). This mod combines those two previous mods into one mod.
-- I did this because there were some game-breaking glitches in IcePlatformsAnywhere, and my new approach that fixed the bug required `func_8088AA98` to be patched, which MoreIcePlatforms also patched. So, combining the two mods allows their functionality to coexist.
-- Having these functionalities combined also allows the global ice platform spawning functionality to take advantage of the improved ice platform instance tracking provided by MoreIcePlatforms, preventing certain glitches from occuring (such as invisible ice platforms spawning after spamming ice arrows).
+- I did this because there is a game-breaking bug in IcePlatformsAnywhere, and my new approach that fixed the bug required `func_8088AA98` to be patched, which MoreIcePlatforms also patched. So, combining the two mods allows their functionality to coexist.
+- Having these functionalities combined also allows the global ice platform spawning functionality to take advantage of the improved ice platform instance tracking provided by MoreIcePlatforms, preventing certain glitches from occurring (such as invisible ice platforms spawning after spamming ice arrows).
 
 If you run into any errors, please [open an issue on GitHub](https://github.com/fenwaypowers/MMRecompIcePlatformUtilities/issues).
 
