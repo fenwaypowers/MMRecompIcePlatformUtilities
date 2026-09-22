@@ -197,6 +197,7 @@ RECOMP_PATCH void func_80AC4C34(BgIcefloe* this, PlayState* play) {
                                 &this->dyna.actor.home.pos.y, &waterBox)) {
         func_80AC4CF0(this);
     } else {
+        // Bobbing animation for the ice floe on water.
         this->dyna.actor.world.pos.y =
             (Math_SinF(this->timer * (M_PIf / 30)) * 3.0f) + (this->dyna.actor.home.pos.y + 10.0f);
     }
