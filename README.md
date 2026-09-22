@@ -8,13 +8,16 @@ Features:
 - Set how long ice platforms last before melting (default = 15 seconds, which is the vanilla value)
 - Option to enable infinite ice platform lifetime (ice platforms only melt when forced to make room for a new one)
 
+### Dependencies
+- This mod depends on [Global Objects by YAZMT](https://thunderstore.io/c/zelda-64-recompiled/p/YAZMT/Global_Objects/v/0.1.1/). You must first install this before being able to use Ice Platform Utilities.
+
 ### Why only up to ten concurrent platforms? Why not more?
 - I tried to test up to 16 concurrently but the game kept crashing around 13-14, so I figured 10 would be a safe max value.
 
 ### Wasn't there another mod that did the same thing?
 - I made two ice platform mods, [IcePlatformsAnywhere](https://github.com/fenwaypowers/MMRecompIcePlatformsAnywhere) and [MoreIcePlatforms](https://github.com/fenwaypowers/MMRecompMoreIcePlatforms). This mod combines those two previous mods into one mod.
-- I did this because there is a game-breaking bug in IcePlatformsAnywhere, and my new approach that fixed the bug required `func_8088AA98` to be patched, which MoreIcePlatforms also patched. So, combining the two mods allows their functionality to coexist.
-- Having these functionalities combined also allows the global ice platform spawning functionality to take advantage of the improved ice platform instance tracking provided by MoreIcePlatforms, preventing certain glitches from occurring (such as invisible ice platforms spawning after spamming ice arrows).
+- I did this because there were some game-breaking glitches in IcePlatformsAnywhere, and my new approach that fixed the bug required `func_8088AA98` to be patched, which MoreIcePlatforms also patched. So, combining the two mods allows their functionality to coexist.
+- Having these functionalities combined also allows the global ice platform spawning functionality to take advantage of the improved ice platform instance tracking provided by MoreIcePlatforms, preventing certain glitches from occuring (such as invisible ice platforms spawning after spamming ice arrows).
 
 If you run into any errors, please [open an issue on GitHub](https://github.com/fenwaypowers/MMRecompIcePlatformUtilities/issues).
 
