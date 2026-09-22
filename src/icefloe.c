@@ -284,6 +284,7 @@ Actor* BgIceFloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState
 
     objectSlot = BgIcefloe_GetObjectSlot(play);
     if (objectSlot <= OBJECT_SLOT_NONE) {
+        // No need to check for ((profile->type == ACTORCAT_ENEMY) && Flags_GetClear(play, play->roomCtx.curRoom.num) && (profile->id != ACTOR_BOSS_05))
         Actor_FreeOverlay(&gActorOverlayTable[index]);
         return NULL;
     }
