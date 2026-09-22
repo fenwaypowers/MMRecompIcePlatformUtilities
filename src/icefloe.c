@@ -311,7 +311,7 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
                     play->objectCtx.slots[slot].id = OBJECT_ICEFLOE;
                     play->objectCtx.slots[slot].segment = object;
                     play->objectCtx.numEntries++;
-                } 
+                }
                 else 
                 {
                     recomp_printf("OBJECT_ICEFLOE already has a slot\n");
