@@ -268,7 +268,6 @@ static s32 BgIcefloe_GetObjectSlot(PlayState* play) {
 
 Actor* BgIceFloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX,
                                      s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent) {
-    s32 pad;
     Actor* actor;
     ActorProfile* profile;
     s32 objectSlot;
@@ -284,9 +283,7 @@ Actor* BgIceFloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState
     }
 
     objectSlot = BgIcefloe_GetObjectSlot(play);
-    if ((objectSlot <= OBJECT_SLOT_NONE) ||
-        ((profile->type == ACTORCAT_ENEMY) && Flags_GetClear(play, play->roomCtx.curRoom.num) &&
-         (profile->id != ACTOR_BOSS_05))) {
+    if (objectSlot <= OBJECT_SLOT_NONE) {
         Actor_FreeOverlay(&gActorOverlayTable[index]);
         return NULL;
     }
@@ -307,12 +304,9 @@ Actor* BgIceFloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState
     actor->id = profile->id;
     actor->flags = profile->flags;
 
-    if (profile->id == ACTOR_EN_PART) {
-        actor->objectSlot = rotZ;
-        rotZ = 0;
-    } else {
-        actor->objectSlot = objectSlot;
-    }
+    // No need to check for profile->id == ACTOR_EN_PART
+
+    actor->objectSlot = objectSlot;
 
     actor->init = profile->init;
     actor->destroy = profile->destroy;
