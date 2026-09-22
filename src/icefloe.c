@@ -218,54 +218,6 @@ RECOMP_PATCH void BgIcefloe_Destroy(Actor* thisx, PlayState* play) {
     }
 }
 
-// Unused, but keeping here for reference for now.
-static s32 BgIcefloe_GetObjectSlot(PlayState* play) {
-    ObjectContext* objectCtx = &play->objectCtx;
-    void* object;
-    s32 slot;
-
-    // Get the globally loaded Icefloe object.
-    object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
-    if (object == NULL) {
-        return OBJECT_SLOT_NONE;
-    }
-
-    // Check for an existing slot.
-    for (slot = objectCtx->numEntries; slot < ARRAY_COUNT(objectCtx->slots); slot++) {
-        if (objectCtx->slots[slot].id == OBJECT_ICEFLOE) {
-            return slot;
-        }
-    }
-
-    // No room for a synthetic slot, return OBJECT_SLOT_NONE.
-    if (objectCtx->numEntries >= ARRAY_COUNT(objectCtx->slots)) {
-        return OBJECT_SLOT_NONE;
-    }
-
-    // Add the global object as a synthetic slot.
-    slot = objectCtx->numEntries;
-
-    objectCtx->slots[slot].id = OBJECT_ICEFLOE;
-    objectCtx->slots[slot].segment = object;
-
-    // Don't increment numEntries as this isn't a scene-loaded object.
-    return slot;
-}
-
-RECOMP_HOOK_RETURN("Actor_LoadOverlay") void on_return_Actor_LoadOverlay() {
-    ActorProfile *profile = recomphook_get_return_ptr();
-    
-    if (profile == NULL) {
-        return;
-    }
-
-    if (profile->id == ACTOR_BG_ICEFLOE) {
-        recomp_printf("Actor_LoadOverlay: profile=%p, id=%d, objectId=%d\n", profile, profile->id, profile->objectId);
-        recomp_printf("value of OBJECT_ICEFLOE: %d\n", OBJECT_ICEFLOE);
-        recomp_printf("value of ACTOR_BG_ICEFLOE: %d\n", ACTOR_BG_ICEFLOE);
-    }
-}
-
 RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
     WaterBox* waterBox;
     f32 sp50 = this->actor.world.pos.y;
