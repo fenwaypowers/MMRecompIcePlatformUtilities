@@ -31,7 +31,7 @@ void Actor_Init(Actor* actor, PlayState* play);
 ActorProfile* Actor_LoadOverlay(ActorContext* actorCtx, s16 index);
 void Actor_FreeOverlay(ActorOverlay* entry);
 
-// z_scene.c
+// Function declaration for function from z_object.c
 s32 Object_GetSlot(ObjectContext* objectCtx, s16 objectId);
 
 // Function declarations for new functions related to ice floe instance management.
@@ -39,6 +39,9 @@ static s32 BgIcefloe_CountActiveInstances(void);
 static void BgIcefloe_CompactSpawnList(void);
 static BgIcefloe* BgIcefloe_GetOldestNonMeltingInstance(void);
 static void BgIcefloe_EnforceMaxInstances(PlayState* play);
+
+// Function declarations for new functions related to global object slot synthesis.
+void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play);
 
 // Tracks all active ice floes so the runtime limit can change dynamically.
 static BgIcefloe* sSpawnedInstances[ICEFLOE_MAX_TRACKED_INSTANCES] = { NULL };
@@ -94,7 +97,7 @@ static BgIcefloe* BgIcefloe_GetOldestNonMeltingInstance(void) {
 
 // Enforces the current runtime cap and trims excess floes if needed.
 static void BgIcefloe_EnforceMaxInstances(PlayState* play) {
-    // Config makes sure this value is between 0 and 10.
+    // Config makes sure this value is between 0 and 5.
     s32 maxInstances = (s32)recomp_get_config_u32("max_instances");
 
     // Only evaluate once per frame.
@@ -184,7 +187,7 @@ RECOMP_PATCH void func_80AC4C34(BgIcefloe* this, PlayState* play) {
     } else {
         // Bobbing animation for the ice floe on water.
         this->dyna.actor.world.pos.y =
-            (Math_SinF(this->timer * (M_PIf / 30)) * 3.0f) + (this->dyna.actor.home.pos.y + 10.0f);
+            (Math_SinF(this->timer * (-M_PIf / 30)) * 3.0f) + (this->dyna.actor.home.pos.y + 10.0f);
     }
 }
 
@@ -218,7 +221,7 @@ RECOMP_PATCH void BgIcefloe_Destroy(Actor* thisx, PlayState* play) {
     }
 }
 
-RECOMP_HOOK("func_8088AA98") void BgIcefloe_SynthesizeGlobalObjectSlot(EnArrow* this, PlayState* play) {
+void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play) {
     void* object;
     s32 slot;
 
@@ -240,4 +243,8 @@ RECOMP_HOOK("func_8088AA98") void BgIcefloe_SynthesizeGlobalObjectSlot(EnArrow* 
     {
         recomp_printf("IcePlatformUtilities: OBJECT_ICEFLOE already has a slot\n");
     }
+}
+
+RECOMP_HOOK("func_8088AA98") void before_func_8088AA98(EnArrow* this, PlayState* play) {
+    BgIcefloe_SynthesizeGlobalObjectSlot(play);
 }
