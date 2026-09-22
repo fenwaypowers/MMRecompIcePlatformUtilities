@@ -15,7 +15,7 @@ display_name = "Ice Platform Utilities"
 
 # The description that will show up when this mod is displayed in the mod menu. This should be human readable.
 description = """
-Allows ice platforms anywhere, allows up to ten ice platforms to exist concurrently, and lets you adjust their lifetime.
+Allows ice platforms anywhere, allows up to five ice platforms to exist concurrently, and lets you adjust their lifetime.
 
 Features:
 - Allow ice platforms anywhere in the game. (on by default, can be turned off)
@@ -31,7 +31,7 @@ Features:
 
 # A short description that will show up in this mod's entry in the mod list. This should be human readable and kept short
 # to prevent it from being cut off due to the limited space.
-short_description = "Allows ice platforms anywhere, allows up to ten ice platforms to exist concurrently, and lets you adjust their lifetime."
+short_description = "Allows ice platforms anywhere, allows up to five ice platforms to exist concurrently, and lets you adjust their lifetime."
 
 # Authors of this mod.
 authors = [ "Fenway Powers" ]
@@ -90,7 +90,7 @@ name = "Number of Concurrent Ice Platforms Allowed"
 description = "Set how many ice platforms can exist concurrently. The vanilla value is 3. Setting this to 0 will prevent ice platforms from spawning ever."
 type = "Number"
 min = 0
-max = 10
+max = 5
 step = 1
 precision = 1
 percent = false

@@ -1,6 +1,6 @@
 # Majora's Mask Recompiled: Ice Platform Utilities
 
-This is a mod for [Zelda64Recompiled](https://github.com/Zelda64Recomp/Zelda64Recomp) that allows ice platforms to be spawned on any body of water in Majora's Mask. It also allows up to ten ice platforms to exist concurrently and lets you adjust their lifetime.
+This is a mod for [Zelda64Recompiled](https://github.com/Zelda64Recomp/Zelda64Recomp) that allows ice platforms to be spawned on any body of water in Majora's Mask. It also allows up to five ice platforms to exist concurrently and lets you adjust their lifetime.
 
 Features:
 - Allow ice platforms anywhere in the game. (on by default, can be turned off)
@@ -11,8 +11,8 @@ Features:
 ### Dependencies
 - This mod depends on [Global Objects by YAZMT](https://thunderstore.io/c/zelda-64-recompiled/p/YAZMT/Global_Objects/v/0.1.1/). You must first install this before being able to use Ice Platform Utilities.
 
-### Why only up to ten concurrent platforms? Why not more?
-- I tried to test up to 16 concurrently but the game kept crashing around 13-14, so I figured 10 would be a safe max value.
+### Why only up to five concurrent platforms? Why not more?
+- Certain areas of the game crash at over 5 concurrent platforms.
 
 ### Wasn't there another mod that did the same thing?
 - I made two ice platform mods, [IcePlatformsAnywhere](https://github.com/fenwaypowers/MMRecompIcePlatformsAnywhere) and [MoreIcePlatforms](https://github.com/fenwaypowers/MMRecompMoreIcePlatforms). This mod combines those two previous mods into one mod.
