@@ -1,8 +1,17 @@
-# Majora's Mask: Recompiled Mod Template
+# Majora's Mask Recompiled: More Ice Platforms
 
-This is an example mod for Majora's Mask: Recompiled that can be used as a template for creating mods. It has a basic build system, headers, sample code, and a mod config toml.
+This is a mod for [Zelda64Recompiled](https://github.com/Zelda64Recomp/Zelda64Recomp) that allows ice platforms to be spawned on any body of water in the game. Also allows up to ten ice platforms to exist at once and lets you adjust their lifetime.
 
-Example code for using the recompui API to build ingame UI can be found in the `ui-example` branch.
+Features:
+- Allow ice platforms anywhere in the game. (on by default, can be turned off)
+- Change how many ice platforms can exist concurrently (default = 3, which is the vanilla value)
+- Set how long ice platforms last before melting (default = 15 seconds, which is the vanilla value)
+- Enable infinite ice platform lifetime (ice platforms only melt when forced to make room for a new one)
+
+### Why only up to ten concurrent platforms? Why not more?
+- I tried to test up to 16 concurrently but the game kept crashing around 13-14, so I figured 10 would be a safe max value.
+
+If you run into any errors, please [open an issue on GitHub](https://github.com/fenwaypowers/MMRecompMoreIcePlatforms/issues).
 
 ### Writing mods
 See [this document](https://hackmd.io/fMDiGEJ9TBSjomuZZOgzNg) for an explanation of the modding framework, including how to write function patches and perform interop between different mods.
