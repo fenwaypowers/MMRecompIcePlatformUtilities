@@ -5,33 +5,40 @@
 
 # Unique ID of this mod. Pick something long enough that it'll never be the same as any other mod.
 # The name displayed in the mod management menu is separate from this so this doesn't need to be human readable.
-id = "mm_recomp_mod_template"
+id = "mm_recomp_ice_arrow_utilities"
 
 # Version of this mod.
 version = "1.0.0"
 
 # The name that will show up for this mod in the mod menu. This should be human readable.
-display_name = "Always Spin Attack"
+display_name = "Ice Arrow Utilities"
 
 # The description that will show up when this mod is displayed in the mod menu. This should be human readable.
-description =  """
-This is an example mod for Majora's Mask: Recompiled that can be used as a template for creating mods. \
-When this mod is enabled, you will always perform a quickspin when swinging your sword.
+description = """
+Allows up to ten ice platforms to exist at once and lets you adjust their lifetime.
 
-For more details, see https://github.com/Zelda64Recomp/MMRecompModTemplate."""
+Features:
+- Change how many ice platforms can exist concurrently
+  (default = 3, which is the vanilla value)
+
+- Set how long ice platforms last before melting
+  (default = 15 seconds, which is the vanilla value)
+
+- Enable infinite ice platform lifetime
+  (ice platforms only melt when forced to make room for a new one)"""
 
 # A short description that will show up in this mod's entry in the mod list. This should be human readable and kept short
 # to prevent it from being cut off due to the limited space.
-short_description = "Always perform a quickspin when swinging your sword."
+short_description = "Allows up to ten ice platforms to exist at once and lets you adjust their lifetime."
 
 # Authors of this mod.
-authors = [ "Your name here" ]
+authors = [ "Fenway Powers" ]
 
 # ID of the target recomp game.
 game_id = "mm"
 
 # Minimum version of the target recomp (e.g. Zelda 64: Recompiled) that this mod can run on.
-minimum_recomp_version = "1.2.2"
+minimum_recomp_version = "0.1.0"
 
 # Dependency mods. Each entry is the mod's ID and then an optional minimum version of the dependency mod.
 dependencies = [
@@ -59,38 +66,43 @@ native_libraries = [
 elf_path = "build/mod.elf"
 
 # Output mod filename.
-mod_filename = "mm_recomp_mod_template"
+mod_filename = "mm_recomp_more_ice_platforms"
 
 # Reference symbol files.
 func_reference_syms_file = "Zelda64RecompSyms/mm.us.rev1.syms.toml"
 data_reference_syms_files = [ "Zelda64RecompSyms/mm.us.rev1.datasyms.toml", "Zelda64RecompSyms/mm.us.rev1.datasyms_static.toml" ]
 
 # Additional files to include in the mod.
-additional_files = [ ]
+additional_files = ["thumb.png"]
 
 [[manifest.config_options]]
-id = "enum_option"
-name = "Enum Option"
-description = "Test enum config option"
-type = "Enum"
-options = [ "First", "Second" ]
-default = "First"
-
-[[manifest.config_options]]
-id = "number_option"
-name = "Number Option"
-description = "Test number config option."
+id = "max_instances"
+name = "Number of Concurrent Ice Platforms Allowed"
+description = "Set how many ice platforms can exist concurrently. The vanilla value is 3. Setting this to 0 will prevent ice arrow platforms from spawning ever."
 type = "Number"
 min = 0
 max = 10
-step = 0.1
+step = 1
 precision = 1
 percent = false
-default = 1
+default = 3
 
 [[manifest.config_options]]
-id = "string_option"
-name = "String Option"
-description = "Test string config option."
-type = "String"
-default = "Lorem Ipsum"
+id = "icefloe_infinite_lifetime"
+name = "Ice Platform Infinite Lifetime"
+description = "Setting this to Yes will make it so the ice platforms will never melt UNLESS the player spawns an ice platform that causes another platform to melt due to the limited number of concurrent ice platforms allowed."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "icefloe_lifetime"
+name = "Ice Platform Lifetime"
+description = "Set how long in seconds each ice platform should exist before melting. The vanilla value is 15. Setting this to 0 will make it so ice platforms only exist long enough to spawn and then melt."
+type = "Number"
+min = 0
+max = 240
+step = 1
+precision = 1
+percent = false
+default = 15
