@@ -2,24 +2,14 @@
 #include "global.h"
 #include "recomputils.h"
 #include "recompconfig.h"
+#include "globalobjects_api.h"
 #include <overlays/actors/ovl_Bg_Icefloe/z_bg_icefloe.h>
+#include <overlays/actors/ovl_En_Arrow/z_en_arrow.h>
 #include <libc/math.h>
-
-extern CollisionHeader gIcefloePlatformCol;
 
 #define ICEFLOE_MAX_TRACKED_INSTANCES 32
 
-// Tracks all active ice floes so the runtime limit can change dynamically.
-static BgIcefloe* sSpawnedInstances[ICEFLOE_MAX_TRACKED_INSTANCES] = { NULL };
-static s32 sSpawnedCount = 0;
-
-// Prevents the limit check from running more than once per frame.
-static u32 sLastLimitCheckFrame = 0;
-
-static InitChainEntry sInitChain[] = {
-    ICHAIN_VEC3F_DIV1000(scale, 0, ICHAIN_STOP),
-};
-
+// Function declarations for z_bg_icefloe.c
 void BgIcefloe_Init(Actor* thisx, PlayState* play);
 void BgIcefloe_Destroy(Actor* thisx, PlayState* play);
 void BgIcefloe_Update(Actor* thisx, PlayState* play);
@@ -31,6 +21,50 @@ void func_80AC4C18(BgIcefloe* this);
 void func_80AC4D2C(BgIcefloe* this, PlayState* play);
 void func_80AC4C34(BgIcefloe* this, PlayState* play);
 void func_80AC4CF0(BgIcefloe* this);
+
+// Function declarations for z_en_arrow.c
+void EnArrow_Init(Actor* thisx, PlayState* play);
+void EnArrow_Destroy(Actor* thisx, PlayState* play);
+void EnArrow_Update(Actor* thisx, PlayState* play);
+void EnArrow_Draw(Actor* thisx, PlayState* play);
+
+void func_8088A594(EnArrow* this, PlayState* play);
+void func_8088ACE0(EnArrow* this, PlayState* play);
+void func_8088B630(EnArrow* this, PlayState* play);
+void func_8088B6B0(EnArrow* this, PlayState* play);
+
+// Function declaration for function from z_malloc.c
+void* ZeldaArena_Malloc(size_t size);
+
+// Function declarations for functions from z_actor.c
+void Actor_AddToCategory(ActorContext* actorCtx, Actor* actor, u8 actorCategory);
+void Actor_ChangeCategory(PlayState* play, ActorContext* actorCtx, Actor* actor, u8 actorCategory);
+void Actor_Init(Actor* actor, PlayState* play);
+ActorProfile* Actor_LoadOverlay(ActorContext* actorCtx, s16 index);
+void Actor_FreeOverlay(ActorOverlay* entry);
+
+// Function declarations for new functions related to ice floe instance management.
+static s32 BgIcefloe_CountActiveInstances(void);
+static void BgIcefloe_CompactSpawnList(void);
+static BgIcefloe* BgIcefloe_GetOldestNonMeltingInstance(void);
+static void BgIcefloe_EnforceMaxInstances(PlayState* play);
+
+// Function declarations for new functions related to ice floe global actor management.
+void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play);
+static s32 BgIcefloe_GetObjectSlot(PlayState* play);
+Actor* BgIceFloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX, s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent);
+
+
+// Tracks all active ice floes so the runtime limit can change dynamically.
+static BgIcefloe* sSpawnedInstances[ICEFLOE_MAX_TRACKED_INSTANCES] = { NULL };
+static s32 sSpawnedCount = 0;
+
+// Prevents the limit check from running more than once per frame.
+static u32 sLastLimitCheckFrame = 0;
+
+static InitChainEntry sInitChain[] = {
+    ICHAIN_VEC3F_DIV1000(scale, 0, ICHAIN_STOP),
+};
 
 // Counts only floes that are still active, not ones already melting.
 static s32 BgIcefloe_CountActiveInstances(void) {
@@ -96,12 +130,37 @@ static void BgIcefloe_EnforceMaxInstances(PlayState* play) {
     }
 }
 
+void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play) {
+    BgIcefloe* this = (BgIcefloe*)thisx;
+    void* obj;
+    CollisionHeader* col;
+
+    obj = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
+
+    col = SEGMENTED_TO_GLOBAL_PTR(
+        obj,
+        (CollisionHeader*)0x06000C90
+    );
+
+    col->vtxList = SEGMENTED_TO_GLOBAL_PTR(obj, col->vtxList);
+    col->polyList = SEGMENTED_TO_GLOBAL_PTR(obj, col->polyList);
+    col->surfaceTypeList = SEGMENTED_TO_GLOBAL_PTR(obj, col->surfaceTypeList);
+    col->bgCamList = SEGMENTED_TO_GLOBAL_PTR(obj, col->bgCamList);
+
+    this->dyna.bgId = DynaPoly_SetBgActor(
+        play,
+        &play->colCtx.dyna,
+        &this->dyna.actor,
+        col
+    );
+}
+
 RECOMP_PATCH void BgIcefloe_Init(Actor* thisx, PlayState* play) {
     BgIcefloe* this = (BgIcefloe*)thisx;
 
     Actor_ProcessInitChain(&this->dyna.actor, sInitChain);
     DynaPolyActor_Init(&this->dyna, 0);
-    DynaPolyActor_LoadMesh(play, &this->dyna, &gIcefloePlatformCol);
+    BgIcefloe_DynaPolyActor_LoadMesh(&this->dyna.actor, play);
 
     BgIcefloe_CompactSpawnList();
 
@@ -179,6 +238,182 @@ RECOMP_PATCH void BgIcefloe_Destroy(Actor* thisx, PlayState* play) {
             sSpawnedInstances[sSpawnedCount - 1] = NULL;
             sSpawnedCount--;
             break;
+        }
+    }
+}
+
+static s32 BgIcefloe_GetObjectSlot(PlayState* play) {
+    ObjectContext* objectCtx = &play->objectCtx;
+    void* object;
+    s32 slot;
+
+    object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
+    if (object == NULL) {
+        return OBJECT_SLOT_NONE;
+    } else {
+        recomp_printf("Global object for OBJECT_ICEFLOE is already loaded\n");
+    }
+
+    for (slot = objectCtx->numEntries; slot < ARRAY_COUNT(objectCtx->slots); slot++) {
+        if (objectCtx->slots[slot].id == OBJECT_ICEFLOE) {
+            recomp_printf("Found existing object slot for OBJECT_ICEFLOE: %d\n", slot);
+            return slot;
+        }
+    }
+
+    recomp_printf("No existing object slot found for OBJECT_ICEFLOE\n");
+
+    if (objectCtx->numEntries >= ARRAY_COUNT(objectCtx->slots)) {
+        return OBJECT_SLOT_NONE;
+    }
+
+    slot = objectCtx->numEntries;
+
+    objectCtx->slots[slot].id = OBJECT_ICEFLOE;
+    objectCtx->slots[slot].segment = object;
+
+    recomp_printf("Assigned new object slot for OBJECT_ICEFLOE: %d\n", slot);
+
+    return slot;
+}
+
+Actor* BgIceFloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX,
+                                     s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent) {
+    s32 pad;
+    Actor* actor;
+    ActorProfile* profile;
+    s32 objectSlot;
+    ActorOverlay* overlayEntry;
+
+    if (actorCtx->totalLoadedActors >= 255) {
+        return NULL;
+    }
+
+    profile = Actor_LoadOverlay(actorCtx, index);
+    if (profile == NULL) {
+        return NULL;
+    }
+
+    objectSlot = BgIcefloe_GetObjectSlot(play);
+    if ((objectSlot <= OBJECT_SLOT_NONE) ||
+        ((profile->type == ACTORCAT_ENEMY) && Flags_GetClear(play, play->roomCtx.curRoom.num) &&
+         (profile->id != ACTOR_BOSS_05))) {
+        Actor_FreeOverlay(&gActorOverlayTable[index]);
+        return NULL;
+    }
+
+    actor = ZeldaArena_Malloc(profile->instanceSize);
+    if (actor == NULL) {
+        Actor_FreeOverlay(&gActorOverlayTable[index]);
+        return NULL;
+    }
+
+    overlayEntry = &gActorOverlayTable[index];
+    if (overlayEntry->vramStart != NULL) {
+        overlayEntry->numLoaded++;
+    }
+
+    bzero(actor, profile->instanceSize);
+    actor->overlayEntry = overlayEntry;
+    actor->id = profile->id;
+    actor->flags = profile->flags;
+
+    if (profile->id == ACTOR_EN_PART) {
+        actor->objectSlot = rotZ;
+        rotZ = 0;
+    } else {
+        actor->objectSlot = objectSlot;
+    }
+
+    actor->init = profile->init;
+    actor->destroy = profile->destroy;
+    actor->update = profile->update;
+    actor->draw = profile->draw;
+
+    if (parent != NULL) {
+        actor->room = parent->room;
+        actor->parent = parent;
+        parent->child = actor;
+    } else {
+        actor->room = play->roomCtx.curRoom.num;
+    }
+
+    actor->home.pos.x = x;
+    actor->home.pos.y = y;
+    actor->home.pos.z = z;
+    actor->home.rot.x = rotX;
+    actor->home.rot.y = rotY;
+    actor->home.rot.z = rotZ;
+    actor->params = params & 0xFFFF;
+    actor->csId = csId & 0x7F;
+
+    if (actor->csId == 0x7F) {
+        actor->csId = CS_ID_NONE;
+    }
+
+    if (halfDaysBits != 0) {
+        actor->halfDaysBits = halfDaysBits;
+    } else {
+        actor->halfDaysBits = HALFDAYBIT_ALL;
+    }
+
+    Actor_AddToCategory(actorCtx, actor, profile->type);
+
+    {
+        uintptr_t prevSeg = gSegments[0x06];
+
+        Actor_Init(actor, play);
+        gSegments[0x06] = prevSeg;
+    }
+
+    return actor;
+}
+
+RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
+    WaterBox* waterBox;
+    f32 sp50 = this->actor.world.pos.y;
+    Vec3f sp44;
+    f32 temp_f0;
+
+    if (WaterBox_GetSurface1(play, &play->colCtx, this->actor.world.pos.x, this->actor.world.pos.z, &sp50, &waterBox) &&
+        (this->actor.world.pos.y < sp50) && !(this->actor.bgCheckFlags & BGCHECKFLAG_WATER)) {
+        this->actor.bgCheckFlags |= BGCHECKFLAG_WATER;
+
+        Math_Vec3f_Diff(&this->actor.world.pos, &this->actor.home.pos, &sp44);
+
+        if (sp44.y != 0.0f) {
+            temp_f0 = sqrtf(SQ(sp44.x) + SQ(sp44.z));
+            if (temp_f0 != 0.0f) {
+                temp_f0 = (((sp50 - this->actor.home.pos.y) / sp44.y) * temp_f0) / temp_f0;
+            }
+            sp44.x = this->actor.home.pos.x + (sp44.x * temp_f0);
+            sp44.y = sp50;
+            sp44.z = this->actor.home.pos.z + (sp44.z * temp_f0);
+            EffectSsGSplash_Spawn(play, &sp44, NULL, NULL, 0, 300);
+        }
+
+        Actor_PlaySfx(&this->actor, NA_SE_EV_DIVE_INTO_WATER_L);
+
+        EffectSsGRipple_Spawn(play, &sp44, 100, 500, 0);
+        EffectSsGRipple_Spawn(play, &sp44, 100, 500, 4);
+        EffectSsGRipple_Spawn(play, &sp44, 100, 500, 8);
+
+        if ((this->actor.params == ARROW_TYPE_ICE) || (this->actor.params == ARROW_TYPE_FIRE)) {
+            if ((this->actor.params == ARROW_TYPE_ICE) && (func_8088B6B0 != this->actionFunc)) {
+                BgIceFloe_Actor_SpawnAsChildAndCutscene(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300, CS_ID_NONE, HALFDAYBIT_ALL, NULL);
+                Actor_Kill(&this->actor);
+                return;
+            }
+
+            this->actor.params = ARROW_TYPE_NORMAL;
+            this->collider.elem.atDmgInfo.dmgFlags = 0x20;
+
+            if (this->actor.child != NULL) {
+                Actor_Kill(this->actor.child);
+                return;
+            }
+
+            Magic_Reset(play);
         }
     }
 }
