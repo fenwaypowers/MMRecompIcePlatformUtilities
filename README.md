@@ -1,17 +1,22 @@
-# Majora's Mask Recompiled: More Ice Platforms
+# Majora's Mask Recompiled: Ice Platform Utilities
 
-This is a mod for [Zelda64Recompiled](https://github.com/Zelda64Recomp/Zelda64Recomp) that allows ice platforms to be spawned on any body of water in the game. Also allows up to ten ice platforms to exist at once and lets you adjust their lifetime.
+This is a mod for [Zelda64Recompiled](https://github.com/Zelda64Recomp/Zelda64Recomp) that allows ice platforms to be spawned on any body of water in the game. It also allows up to ten ice platforms to exist concurrently and lets you adjust their lifetime.
 
 Features:
 - Allow ice platforms anywhere in the game. (on by default, can be turned off)
 - Change how many ice platforms can exist concurrently (default = 3, which is the vanilla value)
 - Set how long ice platforms last before melting (default = 15 seconds, which is the vanilla value)
-- Enable infinite ice platform lifetime (ice platforms only melt when forced to make room for a new one)
+- Option to enable infinite ice platform lifetime (ice platforms only melt when forced to make room for a new one)
 
 ### Why only up to ten concurrent platforms? Why not more?
 - I tried to test up to 16 concurrently but the game kept crashing around 13-14, so I figured 10 would be a safe max value.
 
-If you run into any errors, please [open an issue on GitHub](https://github.com/fenwaypowers/MMRecompMoreIcePlatforms/issues).
+### Wasn't there another mod that did the same thing?
+- I made two ice platform mods, [IcePlatformsAnywhere](https://github.com/fenwaypowers/MMRecompIcePlatformsAnywhere) and [MoreIcePlatforms](https://github.com/fenwaypowers/MMRecompMoreIcePlatforms). This mod combines those two previous mods into one mod.
+- I did this because there were some game-breaking glitches in IcePlatformsAnywhere, and my new approach that fixed the bug required `func_8088AA98` to be patched, which MoreIcePlatforms also patched. So, combining the two mods allows their functionality to coexist.
+- Having these functionalities combined also allows the global ice platform spawning functionality to take advantage of the improved ice platform instance tracking provided by MoreIcePlatforms, preventing certain glitches from occuring (such as invisible ice platforms spawning after spamming ice arrows).
+
+If you run into any errors, please [open an issue on GitHub](https://github.com/fenwaypowers/MMRecompIcePlatformUtilities/issues).
 
 ### Writing mods
 See [this document](https://hackmd.io/fMDiGEJ9TBSjomuZZOgzNg) for an explanation of the modding framework, including how to write function patches and perform interop between different mods.
