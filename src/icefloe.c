@@ -97,7 +97,7 @@ static BgIcefloe* BgIcefloe_GetOldestNonMeltingInstance(void) {
 
 // Enforces the current runtime cap and trims excess floes if needed.
 static void BgIcefloe_EnforceMaxInstances(PlayState* play) {
-    // Config makes sure this value is between 0 and 5.
+    // Config ensures this value is between 0 and 5.
     s32 maxInstances = (s32)recomp_get_config_u32("max_instances");
 
     // Only evaluate once per frame.
@@ -257,5 +257,4 @@ RECOMP_HOOK("func_8088AA98") void before_func_8088AA98(EnArrow* this, PlayState*
         BgIcefloe_SynthesizeGlobalObjectSlot(play);
         return;
     }
-    
 }
