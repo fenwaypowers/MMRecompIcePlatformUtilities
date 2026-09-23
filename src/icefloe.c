@@ -232,6 +232,12 @@ void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play) {
             recomp_printf("IcePlatformUtilities: Failed to get global object for OBJECT_ICEFLOE\n");
             return;
         }
+
+        if (play->objectCtx.numEntries >= ARRAY_COUNT(play->objectCtx.slots)) {
+            recomp_printf("IcePlatformUtilities: No free object slots for OBJECT_ICEFLOE\n");
+            return;
+        }
+
         slot = play->objectCtx.numEntries;
         recomp_printf("IcePlatformUtilities: Adding synthetic slot for OBJECT_ICEFLOE in slot=%d\n", slot);
 
@@ -246,5 +252,10 @@ void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play) {
 }
 
 RECOMP_HOOK("func_8088AA98") void before_func_8088AA98(EnArrow* this, PlayState* play) {
-    BgIcefloe_SynthesizeGlobalObjectSlot(play);
+    if (recomp_get_config_u32("allow_anywhere") == 0) {
+        // If the "allow_anywhere" config is enabled, synthesize a global object slot for the ice floe.
+        BgIcefloe_SynthesizeGlobalObjectSlot(play);
+        return;
+    }
+    
 }
