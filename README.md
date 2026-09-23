@@ -3,7 +3,7 @@
 This is a mod for [Zelda64Recompiled](https://github.com/Zelda64Recomp/Zelda64Recomp) that allows ice platforms to be spawned on any body of water in Majora's Mask. It also allows up to five ice platforms to exist concurrently and lets you adjust their lifetime.
 
 Features:
-- Allow ice platforms anywhere in the game. (on by default, can be turned off)
+- Allow ice platforms anywhere in the game (on by default, can be turned off)
 - Change how many ice platforms can exist concurrently (default = 3, which is the vanilla value)
 - Set how long ice platforms last before melting (default = 15 seconds, which is the vanilla value)
 - Option to enable infinite ice platform lifetime (ice platforms only melt when forced to make room for a new one)
