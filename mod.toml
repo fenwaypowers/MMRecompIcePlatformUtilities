@@ -8,17 +8,17 @@
 id = "mm_recomp_ice_platform_utilities"
 
 # Version of this mod.
-version = "1.0.0"
+version = "1.1.0"
 
 # The name that will show up for this mod in the mod menu. This should be human readable.
 display_name = "Ice Platform Utilities"
 
 # The description that will show up when this mod is displayed in the mod menu. This should be human readable.
 description = """
-Allows ice platforms anywhere, allows up to ten ice platforms to exist concurrently, and lets you adjust their lifetime.
+Allows ice platforms anywhere, allows up to five ice platforms to exist concurrently, and lets you adjust their lifetime.
 
 Features:
-- Allow ice platforms anywhere in the game. (on by default, can be turned off)
+- Allow ice platforms anywhere in the game (on by default, can be turned off)
 
 - Change how many ice platforms can exist concurrently
   (default = 3, which is the vanilla value)
@@ -31,7 +31,7 @@ Features:
 
 # A short description that will show up in this mod's entry in the mod list. This should be human readable and kept short
 # to prevent it from being cut off due to the limited space.
-short_description = "Allows ice platforms anywhere, allows up to ten ice platforms to exist concurrently, and lets you adjust their lifetime."
+short_description = "Allows ice platforms anywhere, allows up to five ice platforms to exist concurrently, and lets you adjust their lifetime."
 
 # Authors of this mod.
 authors = [ "Fenway Powers" ]
@@ -90,11 +90,24 @@ name = "Number of Concurrent Ice Platforms Allowed"
 description = "Set how many ice platforms can exist concurrently. The vanilla value is 3. Setting this to 0 will prevent ice platforms from spawning ever."
 type = "Number"
 min = 0
-max = 10
+max = 5
 step = 1
 precision = 1
 percent = false
 default = 3
+
+[[manifest.config_options]]
+id = "icefloe_lifetime"
+name = "Ice Platform Lifetime"
+description = "Set how long in seconds each ice platform should exist before melting. The vanilla value is 15. Setting this to 0 will make it so ice platforms only exist long enough to spawn and then instantly melt."
+type = "Number"
+min = 0
+max = 240
+step = 1
+precision = 1
+percent = false
+default = 15
+
 
 [[manifest.config_options]]
 id = "icefloe_infinite_lifetime"
@@ -103,15 +116,3 @@ description = "Setting this to Yes will make it so the ice platforms will never 
 type = "Enum"
 options = [ "Yes", "No" ]
 default = "No"
-
-[[manifest.config_options]]
-id = "icefloe_lifetime"
-name = "Ice Platform Lifetime"
-description = "Set how long in seconds each ice platform should exist before melting. The vanilla value is 15. Setting this to 0 will make it so ice platforms only exist long enough to spawn and then melt."
-type = "Number"
-min = 0
-max = 240
-step = 1
-precision = 1
-percent = false
-default = 15

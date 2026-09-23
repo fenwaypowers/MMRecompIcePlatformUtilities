@@ -31,16 +31,18 @@ void Actor_Init(Actor* actor, PlayState* play);
 ActorProfile* Actor_LoadOverlay(ActorContext* actorCtx, s16 index);
 void Actor_FreeOverlay(ActorOverlay* entry);
 
+// Function declaration for function from z_object.c
+s32 Object_GetSlot(ObjectContext* objectCtx, s16 objectId);
+
 // Function declarations for new functions related to ice floe instance management.
 static s32 BgIcefloe_CountActiveInstances(void);
 static void BgIcefloe_CompactSpawnList(void);
 static BgIcefloe* BgIcefloe_GetOldestNonMeltingInstance(void);
 static void BgIcefloe_EnforceMaxInstances(PlayState* play);
 
-// Function declarations for new functions related to ice floe global actor management.
-void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play);
-static s32 BgIcefloe_GetObjectSlot(PlayState* play);
-Actor* BgIcefloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX, s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent);
+// Function declarations for new functions related to global object slot synthesis.
+void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play);
+void before_func_8088AA98(EnArrow* this, PlayState* play);
 
 // Tracks all active ice floes so the runtime limit can change dynamically.
 static BgIcefloe* sSpawnedInstances[ICEFLOE_MAX_TRACKED_INSTANCES] = { NULL };
@@ -96,7 +98,7 @@ static BgIcefloe* BgIcefloe_GetOldestNonMeltingInstance(void) {
 
 // Enforces the current runtime cap and trims excess floes if needed.
 static void BgIcefloe_EnforceMaxInstances(PlayState* play) {
-    // Config makes sure this value is between 0 and 10.
+    // Config ensures this value is between 0 and 5.
     s32 maxInstances = (s32)recomp_get_config_u32("max_instances");
 
     // Only evaluate once per frame.
@@ -117,11 +119,13 @@ static void BgIcefloe_EnforceMaxInstances(PlayState* play) {
     }
 }
 
-// Loads the collision mesh for the Icefloe dyna poly actor.
-void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play) {
+RECOMP_PATCH void BgIcefloe_Init(Actor* thisx, PlayState* play) {
     BgIcefloe* this = (BgIcefloe*)thisx;
     void* obj;
     CollisionHeader* col;
+
+    Actor_ProcessInitChain(&this->dyna.actor, sInitChain);
+    DynaPolyActor_Init(&this->dyna, 0);
 
     // Get the globally loaded Icefloe object.
     obj = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
@@ -135,21 +139,7 @@ void BgIcefloe_DynaPolyActor_LoadMesh(Actor* thisx, PlayState* play) {
     col->surfaceTypeList = SEGMENTED_TO_GLOBAL_PTR(obj, col->surfaceTypeList);
     col->bgCamList = SEGMENTED_TO_GLOBAL_PTR(obj, col->bgCamList);
 
-    // Register the collision mesh.
-    this->dyna.bgId = DynaPoly_SetBgActor(
-        play,
-        &play->colCtx.dyna,
-        &this->dyna.actor,
-        col
-    );
-}
-
-RECOMP_PATCH void BgIcefloe_Init(Actor* thisx, PlayState* play) {
-    BgIcefloe* this = (BgIcefloe*)thisx;
-
-    Actor_ProcessInitChain(&this->dyna.actor, sInitChain);
-    DynaPolyActor_Init(&this->dyna, 0);
-    BgIcefloe_DynaPolyActor_LoadMesh(&this->dyna.actor, play);
+    DynaPolyActor_LoadMesh(play, &this->dyna, col);
 
     BgIcefloe_CompactSpawnList();
 
@@ -198,7 +188,7 @@ RECOMP_PATCH void func_80AC4C34(BgIcefloe* this, PlayState* play) {
     } else {
         // Bobbing animation for the ice floe on water.
         this->dyna.actor.world.pos.y =
-            (Math_SinF(this->timer * (M_PIf / 30)) * 3.0f) + (this->dyna.actor.home.pos.y + 10.0f);
+            (Math_SinF(this->timer * (-M_PIf / 30)) * 3.0f) + (this->dyna.actor.home.pos.y + 10.0f);
     }
 }
 
@@ -232,181 +222,42 @@ RECOMP_PATCH void BgIcefloe_Destroy(Actor* thisx, PlayState* play) {
     }
 }
 
-// Retrieves the object slot for the Icefloe object, creating a synthetic slot if necessary.
-static s32 BgIcefloe_GetObjectSlot(PlayState* play) {
-    ObjectContext* objectCtx = &play->objectCtx;
+// Synthesizes a slot for the ice floe global object if it isn't already loaded in the scene.
+void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play) {
     void* object;
     s32 slot;
 
-    // Get the globally loaded Icefloe object.
-    object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
-    if (object == NULL) {
-        return OBJECT_SLOT_NONE;
-    }
-
-    // Check for an existing slot.
-    for (slot = objectCtx->numEntries; slot < ARRAY_COUNT(objectCtx->slots); slot++) {
-        if (objectCtx->slots[slot].id == OBJECT_ICEFLOE) {
-            return slot;
+    // Only add a slot if OBJECT_ICEFLOE isn't already loaded for the scene.
+    if (Object_GetSlot(&play->objectCtx, OBJECT_ICEFLOE) <= OBJECT_SLOT_NONE) {
+        // Get the globally loaded Icefloe object.
+        object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
+        if (object == NULL) {
+            recomp_printf("IcePlatformUtilities: Failed to get global object for OBJECT_ICEFLOE\n");
+            return;
         }
+
+        // Make sure there is room for the synthetic object entry.
+        if (play->objectCtx.numEntries >= ARRAY_COUNT(play->objectCtx.slots)) {
+            recomp_printf("IcePlatformUtilities: No free object slots for OBJECT_ICEFLOE\n");
+            return;
+        }
+
+        // Expose the global object through the scene's object context.
+        slot = play->objectCtx.numEntries;
+        play->objectCtx.slots[slot].id = OBJECT_ICEFLOE;
+        play->objectCtx.slots[slot].segment = object;
+        play->objectCtx.numEntries++;
+
+        recomp_printf("IcePlatformUtilities: Adding synthetic slot for OBJECT_ICEFLOE in slot=%d\n", slot);
+    } else {
+        recomp_printf("IcePlatformUtilities: OBJECT_ICEFLOE already has a slot\n");
     }
-
-    // No room for a synthetic slot, return OBJECT_SLOT_NONE.
-    if (objectCtx->numEntries >= ARRAY_COUNT(objectCtx->slots)) {
-        return OBJECT_SLOT_NONE;
-    }
-
-    // Add the global object as a synthetic slot.
-    slot = objectCtx->numEntries;
-
-    objectCtx->slots[slot].id = OBJECT_ICEFLOE;
-    objectCtx->slots[slot].segment = object;
-
-    // Don't increment numEntries as this isn't a scene-loaded object.
-    return slot;
 }
 
-Actor* BgIcefloe_Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s16 index, f32 x, f32 y, f32 z, s16 rotX,
-                                     s16 rotY, s16 rotZ, s32 params, u32 csId, u32 halfDaysBits, Actor* parent) {
-    Actor* actor;
-    ActorProfile* profile;
-    s32 objectSlot;
-    ActorOverlay* overlayEntry;
-
-    if (actorCtx->totalLoadedActors >= 255) {
-        return NULL;
-    }
-
-    profile = Actor_LoadOverlay(actorCtx, index);
-    if (profile == NULL) {
-        return NULL;
-    }
-
-    objectSlot = BgIcefloe_GetObjectSlot(play);
-    if (objectSlot <= OBJECT_SLOT_NONE) {
-        // No need to check for ((profile->type == ACTORCAT_ENEMY) && Flags_GetClear(play, play->roomCtx.curRoom.num) && (profile->id != ACTOR_BOSS_05))
-        Actor_FreeOverlay(&gActorOverlayTable[index]);
-        return NULL;
-    }
-
-    actor = ZeldaArena_Malloc(profile->instanceSize);
-    if (actor == NULL) {
-        Actor_FreeOverlay(&gActorOverlayTable[index]);
-        return NULL;
-    }
-
-    overlayEntry = &gActorOverlayTable[index];
-    if (overlayEntry->vramStart != NULL) {
-        overlayEntry->numLoaded++;
-    }
-
-    bzero(actor, profile->instanceSize);
-    actor->overlayEntry = overlayEntry;
-    actor->id = profile->id;
-    actor->flags = profile->flags;
-
-    // No need to check for profile->id == ACTOR_EN_PART
-
-    actor->objectSlot = objectSlot;
-
-    actor->init = profile->init;
-    actor->destroy = profile->destroy;
-    actor->update = profile->update;
-    actor->draw = profile->draw;
-
-    if (parent != NULL) {
-        actor->room = parent->room;
-        actor->parent = parent;
-        parent->child = actor;
-    } else {
-        actor->room = play->roomCtx.curRoom.num;
-    }
-
-    actor->home.pos.x = x;
-    actor->home.pos.y = y;
-    actor->home.pos.z = z;
-    actor->home.rot.x = rotX;
-    actor->home.rot.y = rotY;
-    actor->home.rot.z = rotZ;
-    actor->params = params & 0xFFFF;
-    actor->csId = csId & 0x7F;
-
-    if (actor->csId == 0x7F) {
-        actor->csId = CS_ID_NONE;
-    }
-
-    if (halfDaysBits != 0) {
-        actor->halfDaysBits = halfDaysBits;
-    } else {
-        actor->halfDaysBits = HALFDAYBIT_ALL;
-    }
-
-    Actor_AddToCategory(actorCtx, actor, profile->type);
-
-    {
-        uintptr_t prevSeg = gSegments[0x06];
-
-        Actor_Init(actor, play);
-        gSegments[0x06] = prevSeg;
-    }
-
-    return actor;
-}
-
-RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
-    WaterBox* waterBox;
-    f32 sp50 = this->actor.world.pos.y;
-    Vec3f sp44;
-    f32 temp_f0;
-
-    if (WaterBox_GetSurface1(play, &play->colCtx, this->actor.world.pos.x, this->actor.world.pos.z, &sp50, &waterBox) &&
-        (this->actor.world.pos.y < sp50) && !(this->actor.bgCheckFlags & BGCHECKFLAG_WATER)) {
-        this->actor.bgCheckFlags |= BGCHECKFLAG_WATER;
-
-        Math_Vec3f_Diff(&this->actor.world.pos, &this->actor.home.pos, &sp44);
-
-        if (sp44.y != 0.0f) {
-            temp_f0 = sqrtf(SQ(sp44.x) + SQ(sp44.z));
-            if (temp_f0 != 0.0f) {
-                temp_f0 = (((sp50 - this->actor.home.pos.y) / sp44.y) * temp_f0) / temp_f0;
-            }
-            sp44.x = this->actor.home.pos.x + (sp44.x * temp_f0);
-            sp44.y = sp50;
-            sp44.z = this->actor.home.pos.z + (sp44.z * temp_f0);
-            EffectSsGSplash_Spawn(play, &sp44, NULL, NULL, 0, 300);
-        }
-
-        Actor_PlaySfx(&this->actor, NA_SE_EV_DIVE_INTO_WATER_L);
-
-        EffectSsGRipple_Spawn(play, &sp44, 100, 500, 0);
-        EffectSsGRipple_Spawn(play, &sp44, 100, 500, 4);
-        EffectSsGRipple_Spawn(play, &sp44, 100, 500, 8);
-
-        if ((this->actor.params == ARROW_TYPE_ICE) || (this->actor.params == ARROW_TYPE_FIRE)) {
-            if ((this->actor.params == ARROW_TYPE_ICE) && (func_8088B6B0 != this->actionFunc)) {
-                if (recomp_get_config_u32("allow_anywhere") == 0)
-                {
-                    // Allow Icefloe to spawn in any scene.
-                    BgIcefloe_Actor_SpawnAsChildAndCutscene(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300, CS_ID_NONE, HALFDAYBIT_ALL, NULL);
-                } else 
-                {
-                    // Icefloe will only spawn in vanilla-allowed scenes.
-                    Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300);
-                }
-
-                Actor_Kill(&this->actor);
-                return;
-            }
-
-            this->actor.params = ARROW_TYPE_NORMAL;
-            this->collider.elem.atDmgInfo.dmgFlags = 0x20;
-
-            if (this->actor.child != NULL) {
-                Actor_Kill(this->actor.child);
-                return;
-            }
-
-            Magic_Reset(play);
-        }
+RECOMP_HOOK("func_8088AA98") void before_func_8088AA98(EnArrow* this, PlayState* play) {
+    if (recomp_get_config_u32("allow_anywhere") == 0) {
+        // If the "allow_anywhere" config is enabled, synthesize an object slot for the global ice floe object.
+        BgIcefloe_SynthesizeGlobalObjectSlot(play);
+        return;
     }
 }
