@@ -19,18 +19,6 @@ void func_80AC4D2C(BgIcefloe* this, PlayState* play);
 void func_80AC4C34(BgIcefloe* this, PlayState* play);
 void func_80AC4CF0(BgIcefloe* this);
 
-// Function declaration for function from z_en_arrow.c
-void func_8088B6B0(EnArrow* this, PlayState* play);
-
-// Function declaration for function from z_malloc.c
-void* ZeldaArena_Malloc(size_t size);
-
-// Function declarations for functions from z_actor.c
-void Actor_AddToCategory(ActorContext* actorCtx, Actor* actor, u8 actorCategory);
-void Actor_Init(Actor* actor, PlayState* play);
-ActorProfile* Actor_LoadOverlay(ActorContext* actorCtx, s16 index);
-void Actor_FreeOverlay(ActorOverlay* entry);
-
 // Function declaration for function from z_object.c
 s32 Object_GetSlot(ObjectContext* objectCtx, s16 objectId);
 
