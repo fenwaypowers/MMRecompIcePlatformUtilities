@@ -18,7 +18,7 @@ description = """
 Allows ice platforms anywhere, allows up to five ice platforms to exist concurrently, and lets you adjust their lifetime.
 
 Features:
-- Allow ice platforms anywhere in the game. (on by default, can be turned off)
+- Allow ice platforms anywhere in the game (on by default, can be turned off)
 
 - Change how many ice platforms can exist concurrently
   (default = 3, which is the vanilla value)
