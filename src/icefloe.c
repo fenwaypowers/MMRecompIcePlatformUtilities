@@ -42,6 +42,7 @@ static void BgIcefloe_EnforceMaxInstances(PlayState* play);
 
 // Function declarations for new functions related to global object slot synthesis.
 void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play);
+void before_func_8088AA98(EnArrow* this, PlayState* play);
 
 // Tracks all active ice floes so the runtime limit can change dynamically.
 static BgIcefloe* sSpawnedInstances[ICEFLOE_MAX_TRACKED_INSTANCES] = { NULL };
@@ -221,39 +222,41 @@ RECOMP_PATCH void BgIcefloe_Destroy(Actor* thisx, PlayState* play) {
     }
 }
 
+// Synthesizes a slot for the ice floe global object if it isn't already loaded in the scene.
 void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play) {
     void* object;
     s32 slot;
 
-    if (Object_GetSlot(&play->objectCtx, OBJECT_ICEFLOE) <= OBJECT_SLOT_NONE)
-    {
+    // Only add a slot if OBJECT_ICEFLOE isn't already loaded for the scene.
+    if (Object_GetSlot(&play->objectCtx, OBJECT_ICEFLOE) <= OBJECT_SLOT_NONE) {
+        // Get the globally loaded Icefloe object.
         object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
         if (object == NULL) {
             recomp_printf("IcePlatformUtilities: Failed to get global object for OBJECT_ICEFLOE\n");
             return;
         }
 
+        // Make sure there is room for the synthetic object entry.
         if (play->objectCtx.numEntries >= ARRAY_COUNT(play->objectCtx.slots)) {
             recomp_printf("IcePlatformUtilities: No free object slots for OBJECT_ICEFLOE\n");
             return;
         }
 
+        // Expose the global object through the scene's object context.
         slot = play->objectCtx.numEntries;
-        recomp_printf("IcePlatformUtilities: Adding synthetic slot for OBJECT_ICEFLOE in slot=%d\n", slot);
-
         play->objectCtx.slots[slot].id = OBJECT_ICEFLOE;
         play->objectCtx.slots[slot].segment = object;
         play->objectCtx.numEntries++;
-    }
-    else 
-    {
+
+        recomp_printf("IcePlatformUtilities: Adding synthetic slot for OBJECT_ICEFLOE in slot=%d\n", slot);
+    } else {
         recomp_printf("IcePlatformUtilities: OBJECT_ICEFLOE already has a slot\n");
     }
 }
 
 RECOMP_HOOK("func_8088AA98") void before_func_8088AA98(EnArrow* this, PlayState* play) {
     if (recomp_get_config_u32("allow_anywhere") == 0) {
-        // If the "allow_anywhere" config is enabled, synthesize a global object slot for the ice floe.
+        // If the "allow_anywhere" config is enabled, synthesize an object slot for the global ice floe object.
         BgIcefloe_SynthesizeGlobalObjectSlot(play);
         return;
     }
