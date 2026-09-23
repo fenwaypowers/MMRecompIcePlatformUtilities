@@ -236,7 +236,7 @@ void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play) {
         play->objectCtx.slots[slot].segment = object;
         play->objectCtx.numEntries++;
 
-        recomp_printf("IcePlatformUtilities: Adding synthetic slot for OBJECT_ICEFLOE in slot=%d\n", slot);
+        recomp_printf("IcePlatformUtilities: Adding synthetic slot for OBJECT_ICEFLOE in slot=%d\n, sceneId = %d\n", slot, play->sceneId);
     } else {
         recomp_printf("IcePlatformUtilities: OBJECT_ICEFLOE already has a slot\n");
     }
