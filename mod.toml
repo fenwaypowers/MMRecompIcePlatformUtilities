@@ -97,17 +97,9 @@ percent = false
 default = 3
 
 [[manifest.config_options]]
-id = "icefloe_infinite_lifetime"
-name = "Ice Platform Infinite Lifetime"
-description = "Setting this to Yes will make it so the ice platforms will never melt UNLESS the player spawns an ice platform that causes another platform to melt due to the limited number of concurrent ice platforms allowed."
-type = "Enum"
-options = [ "Yes", "No" ]
-default = "No"
-
-[[manifest.config_options]]
 id = "icefloe_lifetime"
 name = "Ice Platform Lifetime"
-description = "Set how long in seconds each ice platform should exist before melting. The vanilla value is 15. Setting this to 0 will make it so ice platforms only exist long enough to spawn and then melt."
+description = "Set how long in seconds each ice platform should exist before melting. The vanilla value is 15. Setting this to 0 will make it so ice platforms only exist long enough to spawn and then instantly melt."
 type = "Number"
 min = 0
 max = 240
@@ -115,3 +107,12 @@ step = 1
 precision = 1
 percent = false
 default = 15
+
+
+[[manifest.config_options]]
+id = "icefloe_infinite_lifetime"
+name = "Ice Platform Infinite Lifetime"
+description = "Setting this to Yes will make it so the ice platforms will never melt UNLESS the player spawns an ice platform that causes another platform to melt due to the limited number of concurrent ice platforms allowed."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
