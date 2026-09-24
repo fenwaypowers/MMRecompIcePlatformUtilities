@@ -18,13 +18,16 @@ description = """
 Allows ice platforms anywhere, allows up to five ice platforms to exist concurrently, and lets you adjust their lifetime.
 
 Features:
-- Allow ice platforms anywhere in the game (on by default, can be turned off)
+- Allow ice platforms anywhere in the game
+  (on by default, can be turned off)
 
 - Change how many ice platforms can exist concurrently
   (default = 3, which is the vanilla value)
 
 - Set how long ice platforms last before melting
   (default = 15 seconds, which is the vanilla value)
+
+- Specify which areas allow ice platform creation in the config
 """
 
 # A short description that will show up in this mod's entry in the mod list. This should be human readable and kept short
@@ -77,7 +80,7 @@ additional_files = ["thumb.png"]
 [[manifest.config_options]]
 id = "allow_anywhere"
 name = "Allow Ice Platforms Anywhere"
-description = "Determines if ice platforms can be created on any body of water. If set to Yes, all bodies of water in the game will allow ice platform creation. If set to No, then ice platforms will only be spawnable where they would be in the vanilla game."
+description = "Determines if ice platforms can be created on any body of water. If set to Yes, then the settings for specific scenes will be disregarded and all bodies of water in the game will allow ice platform creation. If set to No, then ice platforms will only be spawnable where they would be in the vanilla game, as well as in any of the scenes you specify should allow ice platform creation."
 type = "Enum"
 options = [ "Yes", "No" ]
 default = "Yes"
