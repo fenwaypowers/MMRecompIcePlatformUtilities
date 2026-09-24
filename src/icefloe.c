@@ -318,6 +318,7 @@ RECOMP_PATCH void func_8088AA98(EnArrow *this, PlayState *play) {
       if ((this->actor.params == ARROW_TYPE_ICE) &&
           (func_8088B6B0 != this->actionFunc)) {
         if (BgIcefloe_CanSpawn(play)) {
+          BgIcefloe_SynthesizeGlobalObjectSlot(play);
           Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y,
                       sp44.z, 0, 0, 0, 300);
           Actor_Kill(&this->actor);
