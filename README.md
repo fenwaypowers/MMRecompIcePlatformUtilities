@@ -21,7 +21,7 @@ Features:
 - Ice platforms are generally not that expensive, but when a new ice platform is spawned and an old one starts melting, the game spends 50 frames (2.5 seconds) melting the old platform before its collision is unloaded.
 - This means that even if the max concurrent platforms is set as five, ten or even more platforms could exist in the same scene if, for example, 5 were melting and 5 were just spawned.
 - This can make the game go over the dynamic collision limit, leading to a crash.
-- This mod implements a hard check to make sure the ice platforms do not go over the dynamic collision limits. Meaning that **this mod should theoretically never cause a crash due to spawning one too many platforms**.
+- This mod implements a hard check to make sure the ice platforms do not go over the dynamic collision limits. Meaning that this mod should theoretically never cause a crash due to spawning one too many platforms.
 - If you try to spawn a platform that *would* have gone over the limit, the arrow will simply hit the water and do nothing like a normal arrow, and the oldest platform (if it was not already melting) would start melting to make room for a new platform. In normal gameplay, the player will not likely encounter this behavior. This behavior is really only noticeable if you're spamming ice arrows and are trying to get the game to load as many platforms as it can as fast as possible.
 
 If you run into any errors, please [open an issue on GitHub](https://github.com/fenwaypowers/MMRecompIcePlatformUtilities/issues).
