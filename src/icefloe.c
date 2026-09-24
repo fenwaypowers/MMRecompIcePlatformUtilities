@@ -254,6 +254,7 @@ void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState *play) {
   void *object;
   s32 slot;
 
+  // If the "allow_anywhere" config is disabled, do not synthesize a global object slot.
   if (recomp_get_config_u32("allow_anywhere") == 1) {
     return;
   }
