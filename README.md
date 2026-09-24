@@ -1,23 +1,28 @@
 # Majora's Mask Recompiled: Ice Platform Utilities
 
-This is a mod for [Zelda64Recompiled](https://github.com/Zelda64Recomp/Zelda64Recomp) that allows ice platforms to be spawned on any body of water in Majora's Mask. It also allows up to five ice platforms to exist concurrently and lets you adjust their lifetime.
+This is a mod for [Zelda64Recompiled](https://github.com/Zelda64Recomp/Zelda64Recomp) that allows ice platforms to be spawned in any area in Majora's Mask. It also allows up to five ice platforms to exist concurrently and lets you adjust their lifetime.
 
 Features:
 - Allow ice platforms anywhere in the game (on by default, can be turned off)
 - Change how many ice platforms can exist concurrently (default = 3, which is the vanilla value)
 - Set how long ice platforms last before melting (default = 15 seconds, which is the vanilla value)
-- Option to enable infinite ice platform lifetime (ice platforms only melt when forced to make room for a new one)
+- Specify which areas allow ice platform creation in the config
 
 ### Dependencies
 - This mod depends on [Global Objects by YAZMT](https://thunderstore.io/c/zelda-64-recompiled/p/YAZMT/Global_Objects/v/0.1.1/). You must first install this before being able to use Ice Platform Utilities.
 
-### Why only up to five concurrent platforms? Why not more?
-- Certain areas of the game crash at six or more concurrent platforms.
-
 ### Wasn't there another mod that did the same thing?
 - I made two ice platform mods, [IcePlatformsAnywhere](https://github.com/fenwaypowers/MMRecompIcePlatformsAnywhere) and [MoreIcePlatforms](https://github.com/fenwaypowers/MMRecompMoreIcePlatforms). This mod combines those two previous mods into one mod.
-- I did this because there is a [game-breaking bug in IcePlatformsAnywhere](https://github.com/fenwaypowers/MMRecompIcePlatformsAnywhere/issues/2), and my new approach that fixed the bug required the `BgIcefloe_Init` function to be patched, which MoreIcePlatforms also patched. So, combining the two mods allows their functionality to coexist.
-- Having these functionalities combined also allows the global ice platform spawning functionality to take advantage of the improved ice platform instance tracking provided by MoreIcePlatforms, preventing certain glitches from occuring (such as invisible ice platforms spawning after spamming ice arrows).
+- I did this because there is a [game-breaking bug in IcePlatformsAnywhere](https://github.com/fenwaypowers/MMRecompIcePlatformsAnywhere/issues/2) and having these mods combined allows the IcePlatformsAnywhere functionality to take advantage of the improved ice platform instance tracking provided by MoreIcePlatforms, which fixes some bugs and enforces dynamic collision limits to ensure the game doesn't crash from having too many ice platforms existing concurrently. More info below.
+
+### Why only up to five concurrent platforms? Why not more?
+- Five was decided on as the limit, as it's a noticeable bump from the vanilla limit of three, while not being too taxing on the game's dynamic collision limits.
+- Each ice platform takes up 22 dynamic collision polygons and 13 vertices. Usually, the cap for each scene is 544 dynamic collision polygons and 512 vertices.
+- Ice platforms are generally not that expensive, but when a new ice platform is spawned and an old one starts melting, the game spends 50 frames (2.5 seconds) melting the platform before its collision is unloaded.
+- This means that even if the max concurrent platforms is set as five, ten or even more platforms could exist in the same scene if, for example, 5 were melting and 5 were just spawned.
+- This can make the game go over the dynamic collision limit, leading to a crash.
+- This mod implements a hard check to make sure the ice platforms do not go over the dynamic collision limits. Meaning that **this mod should theoretically never cause a crash due to spawning one too many platforms**.
+- If you try to spawn a platform that *would* have gone over the limit, the arrow will simply hit the water and do nothing like a normal arrow, and the oldest platform (if it was not already melting) would start melting to make room for a new platform. In normal gameplay, the player will not likely encounter this behavior. This behavior is really only noticable if you're spamming ice arrows and are trying to get the game to load as many platforms as it can as fast as possible.
 
 If you run into any errors, please [open an issue on GitHub](https://github.com/fenwaypowers/MMRecompIcePlatformUtilities/issues).
 
