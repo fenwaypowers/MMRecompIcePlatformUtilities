@@ -107,8 +107,104 @@ percent = false
 default = 15
 
 [[manifest.config_options]]
+id = "95"
+name = "Allow Ice Platforms in Gyorg's Lair"
+description = "Determines if ice platforms can be created in Gyorg's Lair. Setting this to Yes replicates the behavior of this scene from the 3DS version of Majora's Mask. Setting this to No will restore vanilla N64 behavior."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "55"
+name = "Allow Ice Platforms in Great Bay Coast (murky water)"
+description = "Determines if ice platforms can be created in Great Bay Coast when the water is murky (before Gyorg is defeated)."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "51"
+name = "Allow Ice Platforms in Zora Hall"
+description = "Determines if ice platforms can be created in Zora Hall and the Zora Hall Rooms."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "59"
+name = "Allow Ice Platforms in Pirate's Fortress Moat"
+description = "Determines if ice platforms can be created in Pirate's Fortress Moat."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "74"
+name = "Allow Ice Platforms in the Waterfall Rapids"
+description = "Determines if ice platforms can be created in the Waterfall Rapids."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "69"
+name = "Allow Ice Platforms in Southern Swamp (poison)"
+description = "Determines if ice platforms can be created in Southern Swamp (poison)."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "0"
+name = "Allow Ice Platforms in Southern Swamp (clear)"
+description = "Determines if ice platforms can be created in Southern Swamp (clear)."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "43"
+name = "Allow Ice Platforms in Deku Palace"
+description = "Determines if ice platforms can be created in Deku Palace."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "70"
+name = "Allow Ice Platforms in Woodfall"
+description = "Determines if ice platforms can be created in Woodfall."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "80"
+name = "Allow Ice Platforms in Mountain Village (winter)"
+description = "Determines if ice platforms can be created in Mountain Village (winter)."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "90"
+name = "Allow Ice Platforms in Mountain Village (spring)"
+description = "Determines if ice platforms can be created in Mountain Village (spring)."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
+id = "41"
+name = "Allow Ice Platforms in Astral Observatory"
+description = "Determines if ice platforms can be created in Astral Observatory."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "No"
+
+[[manifest.config_options]]
 id = "icefloe_infinite_lifetime"
-name = "DEBUG FEATURE ONLY: Ice Platform Infinite Lifetime"
+name = "DEBUG ONLY: Ice Platform Infinite Lifetime"
 description = "Setting this to Yes Prevents ice platforms from melting automatically. Intended for debugging and stress testing ONLY. Keeping platforms indefinitely can increase dynamic collision usage in the scene and may cause unexpected behavior."
 type = "Enum"
 options = [ "Yes", "No" ]
