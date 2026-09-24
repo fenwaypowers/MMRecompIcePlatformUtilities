@@ -332,6 +332,8 @@ RECOMP_PATCH void func_8088AA98(EnArrow *this, PlayState *play) {
 
         BgIcefloe *oldestFloe = BgIcefloe_GetOldestInstance();
         if (oldestFloe != NULL) {
+          // If the oldest ice floe instance exists, attempt to melt it to make
+          // room for a new one.
           if (oldestFloe->actionFunc != func_80AC4D2C) {
             func_80AC4CF0(oldestFloe);
           }
@@ -383,25 +385,21 @@ static void BgIcefloe_GetDynaUsage(PlayState *play, s32 *polyCount,
 // Determines if a new ice floe can be spawned based on the current dynamic
 // collision usage and limits.
 static bool BgIcefloe_CanSpawn(PlayState *play) {
-  void *obj;
-  CollisionHeader *col;
   DynaCollisionContext *dyna = &play->colCtx.dyna;
+  CollisionHeader *col;
+  void *obj;
   s32 polyCount;
   s32 vtxCount;
-  s32 numPolygons = 22;
-  s32 numVertices = 13;
 
   BgIcefloe_GetDynaUsage(play, &polyCount, &vtxCount);
 
   obj = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
-  if (obj != NULL) {
-    col = SEGMENTED_TO_GLOBAL_PTR(obj, (CollisionHeader *)0x06000C90);
-    if (col != NULL) {
-      numPolygons = col->numPolygons;
-      numVertices = col->numVertices;
-    }
+  if (obj == NULL) {
+    return false;
   }
 
-  return (polyCount + numPolygons <= dyna->polyListMax) &&
-         (vtxCount + numVertices <= dyna->vtxListMax);
+  col = SEGMENTED_TO_GLOBAL_PTR(obj, (CollisionHeader *)0x06000C90);
+
+  return (polyCount + col->numPolygons <= dyna->polyListMax) &&
+         (vtxCount + col->numVertices <= dyna->vtxListMax);
 }
