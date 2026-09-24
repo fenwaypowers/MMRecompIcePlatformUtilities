@@ -64,6 +64,7 @@ static s32 sSpawnedCount = 0;
 // Prevents the limit check from running more than once per frame.
 static u32 sLastLimitCheckFrame = 0;
 
+// Initialization chain for the ice floe actor.
 static InitChainEntry sInitChain[] = {
     ICHAIN_VEC3F_DIV1000(scale, 0, ICHAIN_STOP),
 };
@@ -332,8 +333,7 @@ RECOMP_PATCH void func_8088AA98(EnArrow *this, PlayState *play) {
 
         BgIcefloe *oldestFloe = BgIcefloe_GetOldestInstance();
         if (oldestFloe != NULL) {
-          // If the oldest ice floe instance exists, attempt to melt it to make
-          // room for a new one.
+          // If the oldest ice floe instance exists, attempt to melt it.
           if (oldestFloe->actionFunc != func_80AC4D2C) {
             func_80AC4CF0(oldestFloe);
           }
