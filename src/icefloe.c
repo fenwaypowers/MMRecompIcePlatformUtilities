@@ -32,6 +32,8 @@ static void BgIcefloe_EnforceMaxInstances(PlayState* play);
 void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play);
 void before_func_8088AA98(EnArrow* this, PlayState* play);
 
+extern CollisionHeader gIcefloePlatformCol;
+
 // Tracks all active ice floes so the runtime limit can change dynamically.
 static BgIcefloe* sSpawnedInstances[ICEFLOE_MAX_TRACKED_INSTANCES] = { NULL };
 static s32 sSpawnedCount = 0;
@@ -109,25 +111,11 @@ static void BgIcefloe_EnforceMaxInstances(PlayState* play) {
 
 RECOMP_PATCH void BgIcefloe_Init(Actor* thisx, PlayState* play) {
     BgIcefloe* this = (BgIcefloe*)thisx;
-    void* obj;
-    CollisionHeader* col;
 
     Actor_ProcessInitChain(&this->dyna.actor, sInitChain);
     DynaPolyActor_Init(&this->dyna, 0);
 
-    // Get the globally loaded Icefloe object.
-    obj = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
-
-    // Get the collision header from the global object.
-    col = SEGMENTED_TO_GLOBAL_PTR(obj, (CollisionHeader*)0x06000C90);
-
-    // Resolve the collision header's segmented pointers.
-    col->vtxList = SEGMENTED_TO_GLOBAL_PTR(obj, col->vtxList);
-    col->polyList = SEGMENTED_TO_GLOBAL_PTR(obj, col->polyList);
-    col->surfaceTypeList = SEGMENTED_TO_GLOBAL_PTR(obj, col->surfaceTypeList);
-    col->bgCamList = SEGMENTED_TO_GLOBAL_PTR(obj, col->bgCamList);
-
-    DynaPolyActor_LoadMesh(play, &this->dyna, col);
+    DynaPolyActor_LoadMesh(play, &this->dyna, &gIcefloePlatformCol);
 
     BgIcefloe_CompactSpawnList();
 
