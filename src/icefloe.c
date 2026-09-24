@@ -12,12 +12,14 @@
 void BgIcefloe_Init(Actor* thisx, PlayState* play);
 void BgIcefloe_Destroy(Actor* thisx, PlayState* play);
 void BgIcefloe_Update(Actor* thisx, PlayState* play);
-
 void func_80AC4A80(BgIcefloe* this, PlayState* play);
 void func_80AC4C18(BgIcefloe* this);
 void func_80AC4D2C(BgIcefloe* this, PlayState* play);
 void func_80AC4C34(BgIcefloe* this, PlayState* play);
 void func_80AC4CF0(BgIcefloe* this);
+
+// Function declaration for function from z_en_arrow.c
+void func_8088B6B0(EnArrow* this, PlayState* play);
 
 // Function declaration for function from z_object.c
 s32 Object_GetSlot(ObjectContext* objectCtx, s16 objectId);
@@ -235,5 +237,59 @@ RECOMP_HOOK("func_8088AA98") void before_func_8088AA98(EnArrow* this, PlayState*
         // If the "allow_anywhere" config is enabled, synthesize an object slot for the global ice floe object.
         BgIcefloe_SynthesizeGlobalObjectSlot(play);
         return;
+    }
+}
+
+RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
+    WaterBox* waterBox;
+    f32 sp50 = this->actor.world.pos.y;
+    Vec3f sp44;
+    f32 temp_f0;
+
+    if (WaterBox_GetSurface1(play, &play->colCtx, this->actor.world.pos.x, this->actor.world.pos.z, &sp50, &waterBox) &&
+        (this->actor.world.pos.y < sp50) && !(this->actor.bgCheckFlags & BGCHECKFLAG_WATER)) {
+        this->actor.bgCheckFlags |= BGCHECKFLAG_WATER;
+
+        Math_Vec3f_Diff(&this->actor.world.pos, &this->actor.home.pos, &sp44);
+
+        if (sp44.y != 0.0f) {
+            temp_f0 = sqrtf(SQ(sp44.x) + SQ(sp44.z));
+            if (temp_f0 != 0.0f) {
+                temp_f0 = (((sp50 - this->actor.home.pos.y) / sp44.y) * temp_f0) / temp_f0;
+            }
+            sp44.x = this->actor.home.pos.x + (sp44.x * temp_f0);
+            sp44.y = sp50;
+            sp44.z = this->actor.home.pos.z + (sp44.z * temp_f0);
+            EffectSsGSplash_Spawn(play, &sp44, NULL, NULL, 0, 300);
+        }
+
+        Actor_PlaySfx(&this->actor, NA_SE_EV_DIVE_INTO_WATER_L);
+
+        EffectSsGRipple_Spawn(play, &sp44, 100, 500, 0);
+        EffectSsGRipple_Spawn(play, &sp44, 100, 500, 4);
+        EffectSsGRipple_Spawn(play, &sp44, 100, 500, 8);
+
+        if ((this->actor.params == ARROW_TYPE_ICE) || (this->actor.params == ARROW_TYPE_FIRE)) {
+            if ((this->actor.params == ARROW_TYPE_ICE) && (func_8088B6B0 != this->actionFunc)) {
+
+                // if spawning an arrow won't go over the poly or vertext limit, then actor can safely spawn the ice floe platform
+                Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300);
+                Actor_Kill(&this->actor);
+                return;
+
+                // else, melt the oldest floe
+                // func_80AC4CF0(BgIcefloe_GetOldestNonMeltingInstance());
+            }
+
+            this->actor.params = ARROW_TYPE_NORMAL;
+            this->collider.elem.atDmgInfo.dmgFlags = 0x20;
+
+            if (this->actor.child != NULL) {
+                Actor_Kill(this->actor.child);
+                return;
+            }
+
+            Magic_Reset(play);
+        }
     }
 }
