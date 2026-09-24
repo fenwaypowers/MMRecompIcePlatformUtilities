@@ -90,7 +90,7 @@ name = "Number of Concurrent Ice Platforms Allowed"
 description = "Set how many ice platforms can exist concurrently. The vanilla value is 3. Setting this to 0 will prevent ice platforms from spawning ever."
 type = "Number"
 min = 0
-max = 5
+max = 32
 step = 1
 precision = 1
 percent = false
@@ -108,11 +108,10 @@ precision = 1
 percent = false
 default = 15
 
-
 [[manifest.config_options]]
 id = "icefloe_infinite_lifetime"
-name = "Ice Platform Infinite Lifetime"
-description = "Setting this to Yes will make it so the ice platforms will never melt UNLESS the player spawns an ice platform that causes another platform to melt due to the limited number of concurrent ice platforms allowed."
+name = "DEBUG FEATURE ONLY: Ice Platform Infinite Lifetime"
+description = "Setting this to Yes Prevents ice platforms from melting automatically. Intended for debugging and stress testing ONLY. Keeping platforms indefinitely can increase dynamic collision usage in the scene and may cause unexpected behavior."
 type = "Enum"
 options = [ "Yes", "No" ]
 default = "No"
