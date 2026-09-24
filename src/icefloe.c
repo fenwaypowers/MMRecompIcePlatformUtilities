@@ -34,6 +34,10 @@ static void BgIcefloe_EnforceMaxInstances(PlayState* play);
 void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play);
 void before_func_8088AA98(EnArrow* this, PlayState* play);
 
+// Function declarations for new functions related to enforcing the dynamic collision limits.
+static void BgIcefloe_GetDynaUsage(PlayState* play, s32* polyCount, s32* vtxCount);
+static bool BgIcefloe_CanSpawn(PlayState* play);
+
 extern CollisionHeader gIcefloePlatformCol;
 
 // Tracks all active ice floes so the runtime limit can change dynamically.
@@ -81,6 +85,17 @@ static void BgIcefloe_CompactSpawnList(void) {
 static BgIcefloe* BgIcefloe_GetOldestNonMeltingInstance(void) {
     for (s32 i = 0; i < sSpawnedCount; i++) {
         if (sSpawnedInstances[i] != NULL && sSpawnedInstances[i]->actionFunc != func_80AC4D2C) {
+            return sSpawnedInstances[i];
+        }
+    }
+
+    return NULL;
+}
+
+// Returns the oldest floe regardless of its melting state.
+static BgIcefloe* BgIcefloe_GetOldestInstance(void) {
+    for (s32 i = 0; i < sSpawnedCount; i++) {
+        if (sSpawnedInstances[i] != NULL) {
             return sSpawnedInstances[i];
         }
     }
@@ -210,25 +225,19 @@ void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState* play) {
         // Get the globally loaded Icefloe object.
         object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
         if (object == NULL) {
-            recomp_printf("IcePlatformUtilities: Failed to get global object for OBJECT_ICEFLOE\n");
             return;
         }
 
         // Make sure there is room for the synthetic object entry.
         if (play->objectCtx.numEntries >= ARRAY_COUNT(play->objectCtx.slots)) {
-            recomp_printf("IcePlatformUtilities: No free object slots for OBJECT_ICEFLOE\n");
             return;
         }
 
-        // Expose the global object through the scene's object context.
         slot = play->objectCtx.numEntries;
         play->objectCtx.slots[slot].id = OBJECT_ICEFLOE;
         play->objectCtx.slots[slot].segment = object;
         play->objectCtx.numEntries++;
 
-        recomp_printf("IcePlatformUtilities: Adding synthetic slot for OBJECT_ICEFLOE in slot=%d, sceneId = %d\n", slot, play->sceneId);
-    } else {
-        recomp_printf("IcePlatformUtilities: OBJECT_ICEFLOE already has a slot\n");
     }
 }
 
@@ -271,14 +280,18 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
 
         if ((this->actor.params == ARROW_TYPE_ICE) || (this->actor.params == ARROW_TYPE_FIRE)) {
             if ((this->actor.params == ARROW_TYPE_ICE) && (func_8088B6B0 != this->actionFunc)) {
-
-                // if spawning an arrow won't go over the poly or vertext limit, then actor can safely spawn the ice floe platform
-                Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300);
-                Actor_Kill(&this->actor);
-                return;
-
-                // else, melt the oldest floe
-                // func_80AC4CF0(BgIcefloe_GetOldestNonMeltingInstance());
+                if (BgIcefloe_CanSpawn(play)) {
+                    Actor_Spawn(&play->actorCtx, play, ACTOR_BG_ICEFLOE, sp44.x, sp44.y, sp44.z, 0, 0, 0, 300);
+                    Actor_Kill(&this->actor);
+                    return;
+                }
+                
+                BgIcefloe* oldestFloe = BgIcefloe_GetOldestInstance();
+                if (oldestFloe != NULL) {
+                    if (oldestFloe->actionFunc != func_80AC4D2C) {
+                        func_80AC4CF0(oldestFloe);
+                    }
+                }
             }
 
             this->actor.params = ARROW_TYPE_NORMAL;
@@ -292,4 +305,54 @@ RECOMP_PATCH void func_8088AA98(EnArrow* this, PlayState* play) {
             Magic_Reset(play);
         }
     }
+}
+
+static void BgIcefloe_GetDynaUsage(PlayState* play, s32* polyCount, s32* vtxCount) {
+    DynaCollisionContext* dyna = &play->colCtx.dyna;
+
+    *polyCount = 0;
+    *vtxCount = 0;
+
+    for (s32 bgId = 0; bgId < BG_ACTOR_MAX; bgId++) {
+        if (!(dyna->bgActorFlags[bgId] & BGACTOR_IN_USE)) {
+            continue;
+        }
+
+        if (dyna->bgActorFlags[bgId] & BGACTOR_COLLISION_DISABLED) {
+            continue;
+        }
+
+        CollisionHeader* col = dyna->bgActors[bgId].colHeader;
+
+        if (col == NULL) {
+            continue;
+        }
+
+        *polyCount += col->numPolygons;
+        *vtxCount += col->numVertices;
+    }
+}
+
+static bool BgIcefloe_CanSpawn(PlayState* play) {
+    void* obj;
+    CollisionHeader* col;
+    DynaCollisionContext* dyna = &play->colCtx.dyna;
+    s32 polyCount;
+    s32 vtxCount;
+    s32 numPolygons = 22;
+    s32 numVertices = 13;
+
+    BgIcefloe_GetDynaUsage(play, &polyCount, &vtxCount);
+
+    obj = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
+    if (obj != NULL) {
+        col = SEGMENTED_TO_GLOBAL_PTR(obj, (CollisionHeader*)0x06000C90);
+        if (col != NULL) {
+            numPolygons = col->numPolygons;
+            numVertices = col->numVertices;
+        }
+    }
+
+    return (polyCount + numPolygons <= dyna->polyListMax) &&
+           (vtxCount + numVertices <= dyna->vtxListMax);
 }
