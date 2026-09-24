@@ -18,7 +18,7 @@ Features:
 ### Why only up to five concurrent platforms? Why not more?
 - Five was decided on as the limit, as it's a noticeable bump from the vanilla limit of three, while not being too taxing on the game's dynamic collision limits.
 - Each ice platform takes up 22 dynamic collision polygons and 13 vertices. Usually, the cap for each scene is 544 dynamic collision polygons and 512 vertices.
-- Ice platforms are generally not that expensive, but when a new ice platform is spawned and an old one starts melting, the game spends 50 frames (2.5 seconds) melting the platform before its collision is unloaded.
+- Ice platforms are generally not that expensive, but when a new ice platform is spawned and an old one starts melting, the game spends 50 frames (2.5 seconds) melting the old platform before its collision is unloaded.
 - This means that even if the max concurrent platforms is set as five, ten or even more platforms could exist in the same scene if, for example, 5 were melting and 5 were just spawned.
 - This can make the game go over the dynamic collision limit, leading to a crash.
 - This mod implements a hard check to make sure the ice platforms do not go over the dynamic collision limits. Meaning that **this mod should theoretically never cause a crash due to spawning one too many platforms**.
