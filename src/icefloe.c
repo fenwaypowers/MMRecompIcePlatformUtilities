@@ -269,7 +269,6 @@ static bool BgIcefloe_IsSceneEnabled(PlayState *play) {
   case 55:
     return recomp_get_config_u32("55") == 0;
   case 51:
-  case 76:
     return recomp_get_config_u32("51") == 0;
   case 74:
     return recomp_get_config_u32("74") == 0;
