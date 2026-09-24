@@ -44,7 +44,7 @@ static void BgIcefloe_EnforceMaxInstances(PlayState *play);
 // synthesis.
 
 void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState *play);
-void before_func_8088AA98(EnArrow *this, PlayState *play);
+static bool BgIcefloe_IsSceneEnabled(PlayState *play);
 
 // Function declarations for new functions related to enforcing the dynamic
 // collision limits.
@@ -248,35 +248,71 @@ RECOMP_PATCH void BgIcefloe_Destroy(Actor *thisx, PlayState *play) {
   }
 }
 
+// Checks if the current scene is enabled for ice floe spawning based on the
+// config.
+static bool BgIcefloe_IsSceneEnabled(PlayState *play) {
+  switch (play->sceneId) {
+  case 41:
+    return recomp_get_config_u32("41") == 0;
+  case 69:
+    return recomp_get_config_u32("69") == 0;
+  case 0:
+    return recomp_get_config_u32("0") == 0;
+  case 43:
+    return recomp_get_config_u32("43") == 0;
+  case 70:
+    return recomp_get_config_u32("70") == 0;
+  case 80:
+    return recomp_get_config_u32("80") == 0;
+  case 90:
+    return recomp_get_config_u32("90") == 0;
+  case 55:
+    return recomp_get_config_u32("55") == 0;
+  case 51:
+  case 76:
+    return recomp_get_config_u32("51") == 0;
+  case 74:
+    return recomp_get_config_u32("74") == 0;
+  case 59:
+    return recomp_get_config_u32("59") == 0;
+  case 95:
+    return recomp_get_config_u32("95") == 0;
+  default:
+    return false;
+  }
+}
+
 // Synthesizes a slot for the ice floe global object if it isn't already loaded
 // in the scene.
 void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState *play) {
   void *object;
   s32 slot;
 
-  // If the "allow_anywhere" config is disabled, do not synthesize a global object slot.
-  if (recomp_get_config_u32("allow_anywhere") == 1) {
+  // If "allow_anywhere" is disabled, only allow configured scenes.
+  if ((recomp_get_config_u32("allow_anywhere") == 1) &&
+      !BgIcefloe_IsSceneEnabled(play)) {
     return;
   }
 
-  // Only add a slot if OBJECT_ICEFLOE isn't already loaded for the scene.
-  if (Object_GetSlot(&play->objectCtx, OBJECT_ICEFLOE) <= OBJECT_SLOT_NONE) {
-    // Get the globally loaded Icefloe object.
-    object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
-    if (object == NULL) {
-      return;
-    }
-
-    // Make sure there is room for the synthetic object entry.
-    if (play->objectCtx.numEntries >= ARRAY_COUNT(play->objectCtx.slots)) {
-      return;
-    }
-
-    slot = play->objectCtx.numEntries;
-    play->objectCtx.slots[slot].id = OBJECT_ICEFLOE;
-    play->objectCtx.slots[slot].segment = object;
-    play->objectCtx.numEntries++;
+  // Don't add a slot if OBJECT_ICEFLOE is already loaded for the scene.
+  if (Object_GetSlot(&play->objectCtx, OBJECT_ICEFLOE) > OBJECT_SLOT_NONE) {
+    return;
   }
+
+  object = GlobalObjects_getGlobalObject(OBJECT_ICEFLOE);
+  if (object == NULL) {
+    return;
+  }
+
+  // Make sure there is room for another object entry.
+  if (play->objectCtx.numEntries >= ARRAY_COUNT(play->objectCtx.slots)) {
+    return;
+  }
+
+  slot = play->objectCtx.numEntries;
+  play->objectCtx.slots[slot].id = OBJECT_ICEFLOE;
+  play->objectCtx.slots[slot].segment = object;
+  play->objectCtx.numEntries++;
 }
 
 // Handles the arrow entering water, spawning ice floes if necessary, and
