@@ -18,8 +18,6 @@ description = """
 Allows ice platforms anywhere, allows up to five ice platforms to exist concurrently, and lets you adjust their lifetime.
 
 Features:
-- Allow ice platforms anywhere in the game
-  (on by default, can be turned off)
 
 - Change how many ice platforms can exist concurrently
   (default = 3, which is the vanilla value)
@@ -27,7 +25,8 @@ Features:
 - Set how long ice platforms last before melting
   (default = 15 seconds, which is the vanilla value)
 
-- Specify which areas allow ice platform creation in the config
+- Specify which extra areas allow ice platform creation in the config
+  (all extra areas are on by default)
 """
 
 # A short description that will show up in this mod's entry in the mod list. This should be human readable and kept short
@@ -78,14 +77,6 @@ data_reference_syms_files = [ "Zelda64RecompSyms/mm.us.rev1.datasyms.toml", "Zel
 additional_files = ["thumb.png"]
 
 [[manifest.config_options]]
-id = "allow_anywhere"
-name = "Allow Ice Platforms Anywhere"
-description = "Determines if ice platforms can be created on any body of water. If set to Yes, then the settings for specific scenes will be disregarded and all bodies of water in the game will allow ice platform creation. If set to No, then ice platforms will only be spawnable where they would be in the vanilla game, as well as in any of the scenes you specify should allow ice platform creation."
-type = "Enum"
-options = [ "Yes", "No" ]
-default = "Yes"
-
-[[manifest.config_options]]
 id = "max_instances"
 name = "Number of Concurrent Ice Platforms Allowed"
 description = "Set how many ice platforms can exist concurrently. The vanilla value is 3. Setting this to 0 will prevent ice platforms from spawning ever."
@@ -115,7 +106,7 @@ name = "Allow Ice Platforms in Gyorg's Lair"
 description = "Determines if ice platforms can be created in Gyorg's Lair. Setting this to Yes replicates the behavior of this scene from the 3DS version of Majora's Mask. Setting this to No will restore vanilla N64 behavior."
 type = "Enum"
 options = [ "Yes", "No" ]
-default = "No"
+default = "Yes"
 
 [[manifest.config_options]]
 id = "55"
@@ -123,7 +114,7 @@ name = "Allow Ice Platforms in Great Bay Coast (murky water)"
 description = "Determines if ice platforms can be created in Great Bay Coast when the water is murky (before Gyorg is defeated)."
 type = "Enum"
 options = [ "Yes", "No" ]
-default = "No"
+default = "Yes"
 
 [[manifest.config_options]]
 id = "51"
@@ -131,7 +122,7 @@ name = "Allow Ice Platforms in Zora Hall"
 description = "Determines if ice platforms can be created in Zora Hall and the Zora Hall Rooms."
 type = "Enum"
 options = [ "Yes", "No" ]
-default = "No"
+default = "Yes"
 
 [[manifest.config_options]]
 id = "59"
@@ -139,7 +130,7 @@ name = "Allow Ice Platforms in Pirate's Fortress Moat"
 description = "Determines if ice platforms can be created in Pirate's Fortress Moat."
 type = "Enum"
 options = [ "Yes", "No" ]
-default = "No"
+default = "Yes"
 
 [[manifest.config_options]]
 id = "74"
@@ -147,7 +138,7 @@ name = "Allow Ice Platforms in the Waterfall Rapids"
 description = "Determines if ice platforms can be created in the Waterfall Rapids."
 type = "Enum"
 options = [ "Yes", "No" ]
-default = "No"
+default = "Yes"
 
 [[manifest.config_options]]
 id = "69"
@@ -155,7 +146,7 @@ name = "Allow Ice Platforms in Southern Swamp (poison)"
 description = "Determines if ice platforms can be created in Southern Swamp (poison)."
 type = "Enum"
 options = [ "Yes", "No" ]
-default = "No"
+default = "Yes"
 
 [[manifest.config_options]]
 id = "0"
@@ -163,7 +154,7 @@ name = "Allow Ice Platforms in Southern Swamp (clear)"
 description = "Determines if ice platforms can be created in Southern Swamp (clear)."
 type = "Enum"
 options = [ "Yes", "No" ]
-default = "No"
+default = "Yes"
 
 [[manifest.config_options]]
 id = "43"
@@ -171,7 +162,7 @@ name = "Allow Ice Platforms in Deku Palace"
 description = "Determines if ice platforms can be created in Deku Palace."
 type = "Enum"
 options = [ "Yes", "No" ]
-default = "No"
+default = "Yes"
 
 [[manifest.config_options]]
 id = "70"
@@ -179,7 +170,7 @@ name = "Allow Ice Platforms in Woodfall"
 description = "Determines if ice platforms can be created in Woodfall."
 type = "Enum"
 options = [ "Yes", "No" ]
-default = "No"
+default = "Yes"
 
 [[manifest.config_options]]
 id = "80"
@@ -187,7 +178,7 @@ name = "Allow Ice Platforms in Mountain Village (winter)"
 description = "Determines if ice platforms can be created in Mountain Village (winter)."
 type = "Enum"
 options = [ "Yes", "No" ]
-default = "No"
+default = "Yes"
 
 [[manifest.config_options]]
 id = "90"
@@ -195,12 +186,20 @@ name = "Allow Ice Platforms in Mountain Village (spring)"
 description = "Determines if ice platforms can be created in Mountain Village (spring)."
 type = "Enum"
 options = [ "Yes", "No" ]
-default = "No"
+default = "Yes"
 
 [[manifest.config_options]]
 id = "41"
 name = "Allow Ice Platforms in Astral Observatory"
 description = "Determines if ice platforms can be created in Astral Observatory."
+type = "Enum"
+options = [ "Yes", "No" ]
+default = "Yes"
+
+[[manifest.config_options]]
+id = "allow_anywhere"
+name = "DEBUG ONLY: Allow Ice Platforms Anywhere"
+description = "Allows Ice Platforms in every scene, no matter the config. Use ONLY when debugging."
 type = "Enum"
 options = [ "Yes", "No" ]
 default = "No"
