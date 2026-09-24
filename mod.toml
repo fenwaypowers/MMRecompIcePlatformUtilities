@@ -119,7 +119,7 @@ default = "Yes"
 [[manifest.config_options]]
 id = "51"
 name = "Allow Ice Platforms in Zora Hall"
-description = "Determines if ice platforms can be created in Zora Hall and the Zora Hall Rooms."
+description = "Determines if ice platforms can be created in Zora Hall."
 type = "Enum"
 options = [ "Yes", "No" ]
 default = "Yes"
