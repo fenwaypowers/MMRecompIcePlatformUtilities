@@ -13,7 +13,7 @@ Features:
 
 ### Wasn't there another mod that did the same thing?
 - I made two ice platform mods, [IcePlatformsAnywhere](https://github.com/fenwaypowers/MMRecompIcePlatformsAnywhere) and [MoreIcePlatforms](https://github.com/fenwaypowers/MMRecompMoreIcePlatforms). This mod combines those two previous mods into one mod.
-- I did this because there is a [game-breaking bug in IcePlatformsAnywhere](https://github.com/fenwaypowers/MMRecompIcePlatformsAnywhere/issues/2) and having these mods combined allows the IcePlatformsAnywhere functionality to take advantage of the improved ice platform instance tracking provided by MoreIcePlatforms, which fixes some bugs and enforces dynamic collision limits to ensure the game doesn't crash from having too many ice platforms existing concurrently. More info below.
+- I did this because there is a [game-breaking bug in IcePlatformsAnywhere](https://github.com/fenwaypowers/MMRecompIcePlatformsAnywhere/issues/2) and having these mods combined allows the IcePlatformsAnywhere functionality to take advantage of the improved ice platform instance tracking provided by MoreIcePlatforms, which fixes some bugs and now enforces dynamic collision limits to ensure the game doesn't crash from having too many ice platforms existing concurrently. More info below.
 
 ### Why only up to five concurrent platforms? Why not more?
 - Five was decided on as the limit, as it's a noticeable bump from the vanilla limit of three, while not being too taxing on the game's dynamic collision limits.
