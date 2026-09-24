@@ -8,7 +8,7 @@
 id = "mm_recomp_ice_platform_utilities"
 
 # Version of this mod.
-version = "1.1.0"
+version = "1.2.0"
 
 # The name that will show up for this mod in the mod menu. This should be human readable.
 display_name = "Ice Platform Utilities"
@@ -25,9 +25,7 @@ Features:
 
 - Set how long ice platforms last before melting
   (default = 15 seconds, which is the vanilla value)
-
-- Option to enable infinite ice platform lifetime
-  (ice platforms only melt when forced to make room for a new one)"""
+"""
 
 # A short description that will show up in this mod's entry in the mod list. This should be human readable and kept short
 # to prevent it from being cut off due to the limited space.
@@ -90,7 +88,7 @@ name = "Number of Concurrent Ice Platforms Allowed"
 description = "Set how many ice platforms can exist concurrently. The vanilla value is 3. Setting this to 0 will prevent ice platforms from spawning ever."
 type = "Number"
 min = 0
-max = 32
+max = 5
 step = 1
 precision = 1
 percent = false
@@ -102,7 +100,7 @@ name = "Ice Platform Lifetime"
 description = "Set how long in seconds each ice platform should exist before melting. The vanilla value is 15. Setting this to 0 will make it so ice platforms only exist long enough to spawn and then instantly melt."
 type = "Number"
 min = 0
-max = 240
+max = 60
 step = 1
 precision = 1
 percent = false
