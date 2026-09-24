@@ -254,6 +254,10 @@ void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState *play) {
   void *object;
   s32 slot;
 
+  if (recomp_get_config_u32("allow_anywhere") == 1) {
+    return;
+  }
+
   // Only add a slot if OBJECT_ICEFLOE isn't already loaded for the scene.
   if (Object_GetSlot(&play->objectCtx, OBJECT_ICEFLOE) <= OBJECT_SLOT_NONE) {
     // Get the globally loaded Icefloe object.
@@ -271,18 +275,6 @@ void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState *play) {
     play->objectCtx.slots[slot].id = OBJECT_ICEFLOE;
     play->objectCtx.slots[slot].segment = object;
     play->objectCtx.numEntries++;
-  }
-}
-
-// Hook function called before func_8088AA98, used to synthesize the ice floe
-// object slot if needed.
-RECOMP_HOOK("func_8088AA98")
-void before_func_8088AA98(EnArrow *this, PlayState *play) {
-  if (recomp_get_config_u32("allow_anywhere") == 0) {
-    // If the "allow_anywhere" config is enabled, synthesize an object slot for
-    // the global ice floe object.
-    BgIcefloe_SynthesizeGlobalObjectSlot(play);
-    return;
   }
 }
 
