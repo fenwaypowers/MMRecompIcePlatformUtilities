@@ -8,14 +8,14 @@
 id = "mm_recomp_ice_platform_utilities"
 
 # Version of this mod.
-version = "1.2.0"
+version = "1.2.1"
 
 # The name that will show up for this mod in the mod menu. This should be human readable.
 display_name = "Ice Platform Utilities"
 
 # The description that will show up when this mod is displayed in the mod menu. This should be human readable.
 description = """
-Allows ice platforms anywhere, allows up to five ice platforms to exist concurrently, and lets you adjust their lifetime.
+Allows ice platforms in more areas, allows up to five ice platforms to exist concurrently, and lets you adjust their lifetime.
 
 Features:
 
@@ -31,7 +31,7 @@ Features:
 
 # A short description that will show up in this mod's entry in the mod list. This should be human readable and kept short
 # to prevent it from being cut off due to the limited space.
-short_description = "Allows ice platforms anywhere, allows up to five ice platforms to exist concurrently, and lets you adjust their lifetime."
+short_description = "Allows ice platforms in more areas, allows up to five ice platforms to exist concurrently, and lets you adjust their lifetime."
 
 # Authors of this mod.
 authors = [ "Fenway Powers" ]
