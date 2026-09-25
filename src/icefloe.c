@@ -287,14 +287,14 @@ void BgIcefloe_SynthesizeGlobalObjectSlot(PlayState *play) {
   void *object;
   s32 slot;
 
-  // If "allow_anywhere" is disabled, only allow configured scenes.
-  if ((recomp_get_config_u32("allow_anywhere") == 1) &&
-      !BgIcefloe_IsSceneEnabled(play)) {
+  // Don't add a slot if OBJECT_ICEFLOE is already loaded for the scene.
+  if (Object_GetSlot(&play->objectCtx, OBJECT_ICEFLOE) > OBJECT_SLOT_NONE) {
     return;
   }
 
-  // Don't add a slot if OBJECT_ICEFLOE is already loaded for the scene.
-  if (Object_GetSlot(&play->objectCtx, OBJECT_ICEFLOE) > OBJECT_SLOT_NONE) {
+  // If "allow_anywhere" is disabled, only allow configured scenes.
+  if ((recomp_get_config_u32("allow_anywhere") == 1) &&
+      !BgIcefloe_IsSceneEnabled(play)) {
     return;
   }
 
